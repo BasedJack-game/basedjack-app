@@ -7,7 +7,7 @@ export async function generateMetadata({
 }: {
   params: { addressOrENSName: string };
 }): Promise<Metadata> {
-  const name = "DEMO TITLE";
+  const name = "Playground";
 
   const address = params.addressOrENSName;
 
@@ -17,13 +17,13 @@ export async function generateMetadata({
       //   label: "Check eligibility",
       // },
       {
-        label: "Delegate",
-        action: "post_redirect",
-        target: `${process.env.NEXT_PUBLIC_URL}/playground`,
+        label: "play",
+        // action: "post_url",
+        target: `${process.env.NEXT_PUBLIC_URL}/leaderboard`,
       },
     ],
-    image: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
-    post_url: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+    image: `${process.env.NEXT_PUBLIC_URL}/public2.jpg`,
+    post_url: `${process.env.NEXT_PUBLIC_URL}/leaderboard`,
   });
 
   return {

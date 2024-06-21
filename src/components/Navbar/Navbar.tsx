@@ -1,7 +1,5 @@
 "use client";
 
-import { getAccount } from "@wagmi/core";
-import { config } from "@/components/wagmi/wagmi";
 import {
   Disclosure,
   DisclosureButton,
@@ -15,12 +13,13 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import { usePathname } from "next/navigation";
 
 const navigation = [
-  { name: "Home", href: "#", current: true },
+  { name: "Home", href: "/", current: true },
+  { name: "playground", href: "/playground", current: false },
+  { name: "leaderboard", href: "/leaderboard", current: false },
   { name: "profile", href: "/user/:address", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -28,9 +27,8 @@ function classNames(...classes: string[]) {
 }
 
 export default function Navbar() {
-  //   const account = getAccount(config);
-
   const { address, isConnected } = useAccount();
+  const pathname = usePathname();
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -51,25 +49,35 @@ export default function Navbar() {
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
-                      <a
-                        key={item.name}
-                        href={
-                          item.href === "/user/:address"
+                    <>
+                      {navigation.map((item) => {
+                        const isCurrent =
+                          pathname ===
+                          (item.href === "/user/:address"
                             ? `/user/${address}`
-                            : item.href
-                        }
-                        className={classNames(
-                          item.current
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium"
-                        )}
-                        aria-current={item.current ? "page" : undefined}
-                      >
-                        {item.name}
-                      </a>
-                    ))}
+                            : item.href);
+
+                        return (
+                          <a
+                            key={item.name}
+                            href={
+                              item.href === "/user/:address"
+                                ? `/user/${address}`
+                                : item.href
+                            }
+                            className={classNames(
+                              isCurrent
+                                ? "bg-gray-900 text-white"
+                                : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                              "rounded-md px-3 py-2 text-sm font-medium"
+                            )}
+                            aria-current={isCurrent ? "page" : undefined}
+                          >
+                            {item.name}
+                          </a>
+                        );
+                      })}
+                    </>
                   </div>
                 </div>
               </div>
