@@ -22,7 +22,7 @@ export async function generateMetadata({
         target: `${process.env.NEXT_PUBLIC_URL}/playground`,
       },
     ],
-    image: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+    image: `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?username=0xdab`,
     post_url: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
   });
 

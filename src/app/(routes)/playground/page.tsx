@@ -17,7 +17,12 @@ export async function generateMetadata({
       //   label: "Check eligibility",
       // },
       {
-        label: "play",
+        label: "Hit",
+        // action: "post_url",
+        target: `${process.env.NEXT_PUBLIC_URL}/leaderboard`,
+      },
+      {
+        label: "stand 🤚",
         // action: "post_url",
         target: `${process.env.NEXT_PUBLIC_URL}/leaderboard`,
       },
