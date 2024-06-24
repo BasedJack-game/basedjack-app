@@ -54,32 +54,67 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
 }
 
 const handleNewUser = async (address: string, message: any) => {
-  const gameState = startNewGame();
-  const gameDocument = createGameDocument(gameState, address);
-  const gameResult = await insertOneDocument("gamedata", gameDocument);
+  try {
+    const gameState = startNewGame();
+    const gameDocument = createGameDocument(gameState, address);
 
-  const userDocument = {
-    address,
-    games: [gameResult.insertedId],
-  };
-  const userResult = await insertOneDocument("usersdata", userDocument);
+    // Insert the game document
+    const gameResult = await insertOneDocument("gamedata", gameDocument);
 
-  const imageUrl = createImageUrl(
-    gameDocument.playerCards,
-    gameDocument.dealerCards
-  );
+    if (!gameResult.insertedId) {
+      throw new Error("Failed to insert game document");
+    }
 
-  return new NextResponse(
-    getFrameHtmlResponse({
-      buttons: [
-        {
-          label: `${message?.raw.action.interactor.custody_address}`,
-        },
-      ],
-      image: imageUrl,
-      postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
-    })
-  );
+    const userDocument = {
+      address,
+      games: [gameResult.insertedId],
+    };
+
+    // Insert the user document
+    const userResult = await insertOneDocument("usersdata", userDocument);
+
+    if (!userResult.insertedId) {
+      throw new Error("Failed to insert user document");
+    }
+
+    const imageUrl = createImageUrl(
+      gameDocument.playerCards,
+      gameDocument.dealerCards
+    );
+
+    return new NextResponse(
+      getFrameHtmlResponse({
+        buttons: [
+          {
+            label: `Hit`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+          },
+          {
+            label: `Stand`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
+          },
+        ],
+        image: imageUrl,
+        // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/game`,
+      })
+    );
+  } catch (error) {
+    console.error("Error in handleNewUser:", error);
+    return new NextResponse(
+      getFrameHtmlResponse({
+        buttons: [
+          {
+            label: `Try Again`,
+            action: "post",
+          },
+        ],
+        image: `${process.env.NEXT_PUBLIC_URL}/error-image.jpg`,
+        postUrl: `${process.env.NEXT_PUBLIC_URL}/api/game`,
+      })
+    );
+  }
 };
 
 const handleExistingUser = async (
@@ -102,11 +137,18 @@ const handleExistingUser = async (
       getFrameHtmlResponse({
         buttons: [
           {
-            label: `${message?.raw.action.interactor.custody_address}`,
+            label: `Hit`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+          },
+          {
+            label: `Stand`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
           },
         ],
         image: imageUrl,
-        postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+        // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
       })
     );
   } else {
@@ -129,11 +171,18 @@ const handleExistingUser = async (
       getFrameHtmlResponse({
         buttons: [
           {
-            label: `${message?.raw.action.interactor.custody_address}`,
+            label: `Hit`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+          },
+          {
+            label: `Stand`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
           },
         ],
         image: imageUrl,
-        postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+        // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
       })
     );
   }

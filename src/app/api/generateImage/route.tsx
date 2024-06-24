@@ -79,23 +79,20 @@ export async function GET(request: NextRequest) {
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
 
+    // Determine if player or dealer is busted
+    const playerText = `Player: ${playerHand
+      .map((card: Card) => `${card.value}${card.suit}`)
+      .join(", ")} - Total: ${playerSum}${playerSum > 21 ? " (Busted)" : ""}`;
+
+    const dealerText = `Dealer: ${dealerHand
+      .map((card: Card) => `${card.value}${card.suit}`)
+      .join(", ")} - Total: ${dealerSum}${dealerSum > 21 ? " (Busted)" : ""}`;
+
     // Draw player's hand
-    ctx.fillText(
-      `Player: ${playerHand
-        .map((card: Card) => `${card.value}${card.suit}`)
-        .join(", ")} - Total: ${playerSum}`,
-      600,
-      280
-    );
+    ctx.fillText(playerText, 600, 280);
 
     // Draw dealer's hand
-    ctx.fillText(
-      `Dealer: ${dealerHand
-        .map((card: Card) => `${card.value}${card.suit}`)
-        .join(", ")} - Total: ${dealerSum}`,
-      600,
-      350
-    );
+    ctx.fillText(dealerText, 600, 350);
 
     const buffer = canvas.toBuffer("image/png");
 
