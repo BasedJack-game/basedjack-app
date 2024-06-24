@@ -23,77 +23,69 @@ export async function POST(request: NextRequest) {
       isFinished: false,
     });
 
-    if (unfinishedGame) {
-      let deck = shuffleDeck();
-      const usedCards = [
-        ...unfinishedGame.playerCards,
-        ...unfinishedGame.dealerCards,
-      ];
-      deck = deck.filter((card) => !usedCards.includes(card));
+    if (!unfinishedGame) {
+      return NextResponse.json(
+        { message: "No unfinished game found" },
+        { status: 404 }
+      );
+    }
 
-      unfinishedGame.playerCards.push(deck.pop());
+    let deck = shuffleDeck();
+    const usedCards = [
+      ...unfinishedGame.playerCards,
+      ...unfinishedGame.dealerCards,
+    ];
+    deck = deck.filter((card) => !usedCards.includes(card));
 
-      // Evaluate the final hands
-      const playerValue = evaluateHand(unfinishedGame.playerCards);
+    unfinishedGame.playerCards.push(deck.pop());
 
-      if (playerValue > 21) {
-        // Update the game document
-        const updatedGame = {
-          playerCards: unfinishedGame.playerCards,
-          playerScore: playerValue,
-          isFinished: true,
-          isBusted: true,
+    // Evaluate the final hands
+    const playerValue = evaluateHand(unfinishedGame.playerCards);
+
+    let gameFinished = false;
+    let isBusted = false;
+
+    if (playerValue > 21) {
+      gameFinished = true;
+      isBusted = true;
+    }
+
+    const updatedGame = {
+      playerCards: unfinishedGame.playerCards,
+      playerScore: playerValue,
+      isFinished: gameFinished,
+      isBusted: isBusted,
+    };
+
+    await updateOneDocument(
+      "gamedata",
+      { _id: new ObjectId(unfinishedGame._id) },
+      { $set: updatedGame }
+    );
+
+    if (gameFinished) {
+      const user = await findOneDocument("usersdata", { address });
+
+      if (user) {
+        const updates = {
+          totalGames: (user.totalGames || 0) + 1,
         };
 
         await updateOneDocument(
-          "gamedata",
-          { _id: new ObjectId(unfinishedGame._id) },
-          { $set: updatedGame }
-        );
-
-        // get user data
-        const user = await findOneDocument("usersdata", { address });
-
-        if (user) {
-          const updates = {
-            totalGames: (user.totalGames || 0) + 1,
-          };
-
-          // update user data
-          await updateOneDocument(
-            "usersdata",
-            { _id: new ObjectId(user._id) },
-            { $set: updates }
-          );
-        }
-        return NextResponse.json(
-          {
-            message: "Game Finished",
-            gameState: updatedGame,
-          },
-          { status: 200 }
-        );
-      } else {
-        // update game data
-        const updatedGame = {
-          playerCards: unfinishedGame.playerCards,
-          playerScore: playerValue,
-        };
-
-        await updateOneDocument(
-          "gamedata",
-          { _id: new ObjectId(unfinishedGame._id) },
-          { $set: updatedGame }
-        );
-        return NextResponse.json(
-          {
-            message: "Game Finished",
-            gameState: updatedGame,
-          },
-          { status: 200 }
+          "usersdata",
+          { _id: new ObjectId(user._id) },
+          { $set: updates }
         );
       }
     }
+
+    return NextResponse.json(
+      {
+        message: gameFinished ? "Game Finished" : "Card Drawn",
+        gameState: updatedGame,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json(
