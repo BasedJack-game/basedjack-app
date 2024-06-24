@@ -25,14 +25,15 @@ export async function GET(request: NextRequest) {
   }
 
   // Fetch the document with the provided username
-  const document = await findOneDocument("users", { username: username });
-  console.log("Fetched document:", document);
+  //   const document = await findOneDocument("users", { username: username });
+  //   console.log("Fetched document:", document);
 
-  if (!document) {
-    return NextResponse.json({ message: "User not found" }, { status: 404 });
-  }
+  //   if (!document) {
+  //     return NextResponse.json({ message: "User not found" }, { status: 404 });
+  //   }
 
-  console.log(`${username} score is ${document.score}`);
+  //   console.log(`${username} score is ${document.score}`);
+  //   console.log(`call ho raha bhaiya`);
 
   return new ImageResponse(
     (
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
         }}
       >
         <div style={{ fontSize: 50, fontWeight: 700 }}>{username}</div>
-        <div style={{ fontSize: 48 }}>{document.score}</div>
+        {/* <div style={{ fontSize: 48 }}>{document.score}</div> */}
       </div>
     ),
     size

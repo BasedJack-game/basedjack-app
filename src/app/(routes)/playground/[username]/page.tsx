@@ -1,6 +1,7 @@
 import React from "react";
 import { getFrameMetadata } from "@coinbase/onchainkit/core";
 import { Metadata, ResolvingMetadata } from "next";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export async function generateMetadata({
   params,
@@ -46,8 +47,17 @@ export async function generateMetadata({
   };
 }
 
-function page() {
-  return <div>this is leaderboard page</div>;
+function page({ params }: { params: { username: string } }) {
+  console.log("the param", params.username);
+  return (
+    <div>
+      {params.username == "undefined" ? (
+        <ConnectButton />
+      ) : (
+        <div>My address: {params.username}</div>
+      )}
+    </div>
+  );
 }
 
 export default page;

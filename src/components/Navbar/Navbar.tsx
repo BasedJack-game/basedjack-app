@@ -17,7 +17,7 @@ import { usePathname } from "next/navigation";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
-  { name: "playground", href: "/playground", current: false },
+  { name: "playground", href: "/playground/:address", current: false },
   { name: "leaderboard", href: "/leaderboard", current: false },
   { name: "profile", href: "/user/:address", current: false },
 ];
@@ -29,6 +29,22 @@ function classNames(...classes: string[]) {
 export default function Navbar() {
   const { address, isConnected } = useAccount();
   const pathname = usePathname();
+
+  const updatedNavigation = navigation.map((item) => {
+    if (item.href.includes(":address") && address) {
+      return {
+        ...item,
+        href: item.href.replace(":address", address),
+      };
+    } else {
+      return {
+        ...item,
+        href: item.href.replace(":address", "undefined"),
+      };
+    }
+    return item;
+  });
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -49,35 +65,24 @@ export default function Navbar() {
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    <>
-                      {navigation.map((item) => {
-                        const isCurrent =
-                          pathname ===
-                          (item.href === "/user/:address"
-                            ? `/user/${address}`
-                            : item.href);
-
-                        return (
-                          <a
-                            key={item.name}
-                            href={
-                              item.href === "/user/:address"
-                                ? `/user/${address}`
-                                : item.href
-                            }
-                            className={classNames(
-                              isCurrent
-                                ? "bg-gray-900 text-white"
-                                : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                              "rounded-md px-3 py-2 text-sm font-medium"
-                            )}
-                            aria-current={isCurrent ? "page" : undefined}
-                          >
-                            {item.name}
-                          </a>
-                        );
-                      })}
-                    </>
+                    {updatedNavigation.map((item) => {
+                      const isCurrent = pathname === item.href;
+                      return (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          className={classNames(
+                            isCurrent
+                              ? "bg-gray-900 text-white"
+                              : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                            "rounded-md px-3 py-2 text-sm font-medium"
+                          )}
+                          aria-current={isCurrent ? "page" : undefined}
+                        >
+                          {item.name}
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -100,18 +105,18 @@ export default function Navbar() {
 
           <DisclosurePanel className="sm:hidden">
             <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
+              {updatedNavigation.map((item) => (
                 <DisclosureButton
                   key={item.name}
                   as="a"
                   href={item.href}
                   className={classNames(
-                    item.current
+                    pathname === item.href
                       ? "bg-gray-900 text-white"
                       : "text-gray-300 hover:bg-gray-700 hover:text-white",
                     "block rounded-md px-3 py-2 text-base font-medium"
                   )}
-                  aria-current={item.current ? "page" : undefined}
+                  aria-current={pathname === item.href ? "page" : undefined}
                 >
                   {item.name}
                 </DisclosureButton>
