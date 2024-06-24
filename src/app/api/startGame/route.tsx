@@ -7,30 +7,42 @@ import {
 import { shuffleDeck, evaluateHand } from "@/app/utils/utils";
 import { GameState } from "@/app/types/store";
 import { ObjectId } from "mongodb";
+import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
+import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
 
-export async function POST(request: NextRequest) {
+// Function to create the image URL with JSON parameters
+function createImageUrl(playerHand: number[], dealerHand: number[]): string {
+  const params = {
+    playerCards: playerHand,
+    dealerCards: dealerHand,
+  };
+
+  const jsonParams = encodeURIComponent(JSON.stringify(params));
+  return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${jsonParams}`;
+}
+
+async function getResponse(request: NextRequest): Promise<NextResponse> {
+  const requestBody = (await request.json()) as FrameRequest;
+  const { isValid, message } = await getFrameMessage(requestBody);
+  console.log(message);
   try {
-    // Parse the JSON body from the request
-    const body = await request.json();
-    const { address } = body;
+    const address = message?.raw.action.interactor.custody_address;
 
-    // Validate required fields
     if (!address) {
       return NextResponse.json(
-        { message: "address and address are required" },
+        { message: "address is required" },
         { status: 400 }
       );
     }
 
-    // Check if user already exists
     const existingUser = await findOneDocument("usersdata", {
       address: address,
     });
 
     if (!existingUser) {
-      return await handleNewUser(address);
+      return await handleNewUser(address, message);
     } else {
-      return await handleExistingUser(address, existingUser);
+      return await handleExistingUser(address, existingUser, message);
     }
   } catch (error) {
     console.error("Error creating user:", error);
@@ -41,69 +53,88 @@ export async function POST(request: NextRequest) {
   }
 }
 
-const handleNewUser = async (address: string) => {
-  // create a new game
+const handleNewUser = async (address: string, message: any) => {
   const gameState = startNewGame();
   const gameDocument = createGameDocument(gameState, address);
   const gameResult = await insertOneDocument("gamedata", gameDocument);
 
-  // update usersdata
   const userDocument = {
     address,
     games: [gameResult.insertedId],
   };
   const userResult = await insertOneDocument("usersdata", userDocument);
 
-  return NextResponse.json(
-    {
-      message: "User and game created successfully",
-      userId: userResult.insertedId,
-      gameId: gameResult.insertedId,
-      gameState: gameDocument,
-    },
-    { status: 201 }
+  const imageUrl = createImageUrl(
+    gameDocument.playerCards,
+    gameDocument.dealerCards
+  );
+
+  return new NextResponse(
+    getFrameHtmlResponse({
+      buttons: [
+        {
+          label: `${message?.raw.action.interactor.custody_address}`,
+        },
+      ],
+      image: imageUrl,
+      postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+    })
   );
 };
 
-const handleExistingUser = async (address: string, existingUser: any) => {
-  // check for unfinished game
+const handleExistingUser = async (
+  address: string,
+  existingUser: any,
+  message: any
+) => {
   const unfinishedGame = await findOneDocument("gamedata", {
     address,
     isFinished: false,
   });
 
   if (unfinishedGame) {
-    return NextResponse.json(
-      {
-        message: "Unfinished game found",
-        userId: existingUser._id,
-        gameId: unfinishedGame._id,
-        gameState: unfinishedGame,
-      },
-      { status: 200 }
+    const imageUrl = createImageUrl(
+      unfinishedGame.playerCards,
+      unfinishedGame.dealerCards
+    );
+
+    return new NextResponse(
+      getFrameHtmlResponse({
+        buttons: [
+          {
+            label: `${message?.raw.action.interactor.custody_address}`,
+          },
+        ],
+        image: imageUrl,
+        postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+      })
     );
   } else {
-    // create a new game
     const gameState = startNewGame();
     const gameDocument = createGameDocument(gameState, address);
     const gameResult = await insertOneDocument("gamedata", gameDocument);
-    console.log("Inserted new game document:", gameResult);
 
-    // update usersdata
     await updateOneDocument(
       "usersdata",
       { _id: new ObjectId(existingUser._id) },
       { $push: { games: gameResult.insertedId } }
     );
 
-    return NextResponse.json(
-      {
-        message: "New game created for existing user",
-        userId: existingUser._id,
-        gameId: gameResult.insertedId,
-        gameState: gameDocument,
-      },
-      { status: 200 }
+    const imageUrl = createImageUrl(
+      gameDocument.playerCards,
+      gameDocument.dealerCards
+    );
+
+    return new NextResponse(
+      getFrameHtmlResponse({
+        buttons: [
+          {
+            label: `${message?.raw.action.interactor.custody_address}`,
+          },
+        ],
+        image: imageUrl,
+        postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+      })
     );
   }
 };
@@ -114,8 +145,8 @@ const startNewGame = (): GameState => {
   const dealerHand = [];
 
   if (deck.length >= 4) {
-    playerHand.push(deck.pop()!, deck.pop()!); // Deal two cards to player
-    dealerHand.push(deck.pop()!, deck.pop()!); // Deal two cards to dealer
+    playerHand.push(deck.pop()!, deck.pop()!);
+    dealerHand.push(deck.pop()!, deck.pop()!);
   }
 
   return {
@@ -136,3 +167,9 @@ const createGameDocument = (gameState: GameState, address: string) => {
     createdAt: new Date(),
   };
 };
+
+export async function POST(req: NextRequest): Promise<Response> {
+  return getResponse(req);
+}
+
+export const dynamic = "force-dynamic";

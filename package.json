@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.1.4",
     "@rainbow-me/rainbowkit": "^2.1.2",
     "@tanstack/react-query": "^5.45.1",
+    "canvas": "^2.11.2",
     "mongodb": "^6.7.0",
     "next": "14.2.4",
     "react": "^18",

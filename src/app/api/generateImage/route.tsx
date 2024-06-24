@@ -1,58 +1,119 @@
-import { NextRequest, NextResponse } from "next/server";
-import { ImageResponse } from "next/og";
-import { findOneDocument } from "@/app/utils/mongodb";
-import {
-  FrameRequest,
-  FrameValidationData,
-  getFrameMessage,
-} from "@coinbase/onchainkit/frame";
+import { NextRequest } from "next/server";
+import { createCanvas } from "canvas";
 
-const size = {
-  width: 1200,
-  height: 630,
-};
+const suits = ["♠", "♥", "♦", "♣"];
+const values = [
+  "A",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "J",
+  "Q",
+  "K",
+];
+
+interface Card {
+  value: string;
+  suit: string;
+}
+
+function mapNumberToCard(num: number): Card {
+  if (num < 1 || num > 52) throw new Error("Invalid card number");
+  const suitIndex = Math.floor((num - 1) / 13);
+  const valueIndex = (num - 1) % 13;
+  return {
+    value: values[valueIndex],
+    suit: suits[suitIndex],
+  };
+}
+
+function cardValueToNumber(value: string): number {
+  if (value === "A") return 11;
+  if (["J", "Q", "K"].includes(value)) return 10;
+  return parseInt(value);
+}
 
 export async function GET(request: NextRequest) {
-  // Extract username from the request URL
-  const { searchParams } = new URL(request.url);
-  const username = searchParams.get("username");
+  try {
+    const { searchParams } = new URL(request.url);
+    const params = searchParams.get("params");
 
-  if (!username) {
-    return NextResponse.json(
-      { message: "Username is required" },
-      { status: 400 }
+    if (!params) {
+      return new Response(JSON.stringify({ message: "Params are required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { playerCards, dealerCards } = JSON.parse(
+      decodeURIComponent(params)
+    ) as { playerCards: number[]; dealerCards: number[] };
+
+    const playerHand: Card[] = playerCards.map(mapNumberToCard);
+    const dealerHand: Card[] = dealerCards.map(mapNumberToCard);
+
+    const playerSum = playerHand.reduce(
+      (sum: number, card: Card) => sum + cardValueToNumber(card.value),
+      0
     );
+    const dealerSum = dealerHand.reduce(
+      (sum: number, card: Card) => sum + cardValueToNumber(card.value),
+      0
+    );
+
+    const canvas = createCanvas(1200, 630);
+    const ctx = canvas.getContext("2d");
+
+    // Set background
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, 1200, 630);
+
+    // Set text properties
+    ctx.font = "32px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+
+    // Draw player's hand
+    ctx.fillText(
+      `Player: ${playerHand
+        .map((card: Card) => `${card.value}${card.suit}`)
+        .join(", ")} - Total: ${playerSum}`,
+      600,
+      280
+    );
+
+    // Draw dealer's hand
+    ctx.fillText(
+      `Dealer: ${dealerHand
+        .map((card: Card) => `${card.value}${card.suit}`)
+        .join(", ")} - Total: ${dealerSum}`,
+      600,
+      350
+    );
+
+    const buffer = canvas.toBuffer("image/png");
+
+    return new Response(buffer, {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
+  } catch (error) {
+    console.error("Error generating image:", error);
+    return new Response(JSON.stringify({ message: "Error generating image" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-
-  // Fetch the document with the provided username
-  //   const document = await findOneDocument("users", { username: username });
-  //   console.log("Fetched document:", document);
-
-  //   if (!document) {
-  //     return NextResponse.json({ message: "User not found" }, { status: 404 });
-  //   }
-
-  //   console.log(`${username} score is ${document.score}`);
-  //   console.log(`call ho raha bhaiya`);
-
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          fontSize: 128,
-          background: "white",
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ fontSize: 50, fontWeight: 700 }}>{username}</div>
-        {/* <div style={{ fontSize: 48 }}>{document.score}</div> */}
-      </div>
-    ),
-    size
-  );
 }
+
+export const config = {
+  runtime: "edge",
+};
