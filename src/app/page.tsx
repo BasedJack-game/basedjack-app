@@ -1,37 +1,26 @@
 import React from "react";
 import { getFrameMetadata } from "@coinbase/onchainkit/core";
-import { Metadata, ResolvingMetadata } from "next";
-import {
-  FrameRequest,
-  getFrameMessage,
-  getFrameHtmlResponse,
-} from "@coinbase/onchainkit/frame";
+import { Metadata } from "next";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { addressOrENSName: string };
-}): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
   const name = "Blackjack";
 
   const frameMetadata = getFrameMetadata({
     buttons: [
       {
         label: "Start game",
-        // action: "post",
-        // target: `${process.env.NEXT_PUBLIC_URL}/startGameFrame`,
       },
     ],
     image: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
-    post_url: `${process.env.NEXT_PUBLIC_URL}/api/start`,
+    post_url: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
   });
 
   return {
     title: name,
-    description: "Check if you're eligible for a free mint",
+    description: "Classic Blackjack game on Farcaster",
     openGraph: {
       title: name,
-      description: "Check if you're eligible for a free mint",
+      description: "Classic Blackjack game on Farcaster",
       images: [`${process.env.NEXT_PUBLIC_URL}/public.jpg`],
     },
     other: {
@@ -42,7 +31,12 @@ export async function generateMetadata({
 }
 
 function page() {
-  return <div>this is Home page</div>;
+  return (
+    <div>
+      Paste this link on your warpcast and Cast it to play the classic
+      BlackJack!
+    </div>
+  );
 }
 
 export default page;
