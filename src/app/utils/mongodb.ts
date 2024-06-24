@@ -29,3 +29,19 @@ export async function findOneDocument(collectionName: string, query: object) {
   const collection = await getCollection(collectionName);
   return collection.findOne(query);
 }
+
+export async function insertOneDocument(collectionName: string, document: object) {
+  const collection = await getCollection(collectionName);
+  return collection.insertOne(document);
+}
+
+
+export async function findDocuments(collectionName: string, query: object) {
+  const collection = await getCollection(collectionName);
+  return collection.find(query).toArray();
+}
+
+export async function updateOneDocument(collectionName: string, filter: object, update: object) {
+  const collection = await getCollection(collectionName);
+  return collection.updateOne(filter, update);
+}
