@@ -1,47 +1,81 @@
-// src/utils/dbUtils.ts
-
-import { MongoClient, Db } from "mongodb";
+import { MongoClient, Db, Collection } from "mongodb";
 
 const uri = process.env.MONGODB_URI || "";
+
 let client: MongoClient | null = null;
-let db: Db | null = null;
 
-export async function connectToDatabase(): Promise<Db> {
-  if (db) return db;
-
-  if (!client) {
-    client = new MongoClient(uri);
-    console.log("MongoClient initialized.");
-    await client.connect();
-    console.log("MongoClient connected.");
+async function connectToDatabase(): Promise<Db> {
+  if (client) {
+    return client.db("blackjack_game");
   }
 
-  db = client.db("blackjack_game");
-  return db;
+  client = new MongoClient(uri);
+  try {
+    await client.connect();
+    console.log("MongoClient connected.");
+    return client.db("blackjack_game");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    throw error;
+  }
 }
 
-export async function getCollection(collectionName: string) {
+async function getCollection(collectionName: string): Promise<Collection> {
   const database = await connectToDatabase();
   return database.collection(collectionName);
 }
 
 export async function findOneDocument(collectionName: string, query: object) {
-  const collection = await getCollection(collectionName);
-  return collection.findOne(query);
+  let collection;
+  try {
+    collection = await getCollection(collectionName);
+    return await collection.findOne(query);
+  } finally {
+    await closeConnection();
+  }
 }
 
-export async function insertOneDocument(collectionName: string, document: object) {
-  const collection = await getCollection(collectionName);
-  return collection.insertOne(document);
+export async function insertOneDocument(
+  collectionName: string,
+  document: object
+) {
+  let collection;
+  try {
+    collection = await getCollection(collectionName);
+    return await collection.insertOne(document);
+  } finally {
+    await closeConnection();
+  }
 }
-
 
 export async function findDocuments(collectionName: string, query: object) {
-  const collection = await getCollection(collectionName);
-  return collection.find(query).toArray();
+  let collection;
+  try {
+    collection = await getCollection(collectionName);
+    return await collection.find(query).toArray();
+  } finally {
+    await closeConnection();
+  }
 }
 
-export async function updateOneDocument(collectionName: string, filter: object, update: object) {
-  const collection = await getCollection(collectionName);
-  return collection.updateOne(filter, update);
+export async function updateOneDocument(
+  collectionName: string,
+  filter: object,
+  update: object
+) {
+  let collection;
+  try {
+    collection = await getCollection(collectionName);
+    return await collection.updateOne(filter, update);
+  } finally {
+    await closeConnection();
+  }
+}
+
+async function closeConnection() {
+  if (client) {
+    await client.close();
+    client = null;
+    console.log("MongoClient connection closed.");
+  }
 }
