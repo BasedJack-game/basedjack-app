@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findOneDocument, updateOneDocument } from "@/app/utils/mongodb";
 import { shuffleDeck, evaluateHand } from "@/app/utils/utils";
-import { ObjectId } from "mongodb";
+// import { ObjectId } from "mongodb";
 import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
 import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
 
@@ -37,6 +37,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!unfinishedGame) {
+      // redirect to new game
       return NextResponse.json(
         { message: "No unfinished game found" },
         { status: 404 }
@@ -65,6 +66,7 @@ const handleHit = async (address: string, game: any) => {
   let gameFinished = false;
   let isBusted = false;
 
+  console.log(playerValue);
   if (playerValue > 21) {
     gameFinished = true;
     isBusted = true;
@@ -77,15 +79,7 @@ const handleHit = async (address: string, game: any) => {
     isBusted: isBusted,
   };
 
-  await updateOneDocument(
-    "gamedata",
-    { _id: new ObjectId(game._id) },
-    { $set: updatedGame }
-  );
-
-  if (gameFinished) {
-    await updateUserStats(address);
-  }
+  await updateOneDocument("gamedata", { _id: game._id }, { $set: updatedGame });
 
   const imageUrl = createImageUrl(updatedGame.playerCards, game.dealerCards);
 
@@ -93,27 +87,21 @@ const handleHit = async (address: string, game: any) => {
     getFrameHtmlResponse({
       buttons: gameFinished
         ? [{ label: "Game Over" }]
-        : [{ label: "Hit" }, { label: "Stand" }],
+        : [
+            {
+              label: `Hit`,
+              action: "post",
+              target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+            },
+            {
+              label: `Stand`,
+              action: "post",
+              target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+            },
+          ],
       image: imageUrl,
-      postUrl: `${process.env.NEXT_PUBLIC_URL}/api/game`,
     })
   );
-};
-
-const updateUserStats = async (address: string) => {
-  const user = await findOneDocument("usersdata", { address });
-
-  if (user) {
-    const updates = {
-      totalGames: (user.totalGames || 0) + 1,
-    };
-
-    await updateOneDocument(
-      "usersdata",
-      { _id: new ObjectId(user._id) },
-      { $set: updates }
-    );
-  }
 };
 
 export async function POST(req: NextRequest): Promise<Response> {
