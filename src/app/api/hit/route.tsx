@@ -6,10 +6,17 @@ import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
 import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
 
 // Function to create the image URL with JSON parameters
-function createImageUrl(playerHand: number[], dealerHand: number[]): string {
+function createImageUrl(
+  playerHand: number[],
+  dealerHand: number[],
+  playerScore: number,
+  dealerScore: number
+): string {
   const params = {
     playerCards: playerHand,
     dealerCards: dealerHand,
+    playerScore,
+    dealerScore,
   };
 
   const jsonParams = encodeURIComponent(JSON.stringify(params));
@@ -81,7 +88,12 @@ const handleHit = async (address: string, game: any) => {
 
   await updateOneDocument("gamedata", { _id: game._id }, { $set: updatedGame });
 
-  const imageUrl = createImageUrl(updatedGame.playerCards, game.dealerCards);
+  const imageUrl = createImageUrl(
+    updatedGame.playerCards,
+    game.dealerCards,
+    playerValue,
+    game.dealerScore
+  );
 
   return new NextResponse(
     getFrameHtmlResponse({

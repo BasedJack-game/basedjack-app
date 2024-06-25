@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  findOneDocument,
-  insertOneDocument,
-  updateOneDocument,
-} from "@/app/utils/mongodb";
+import { insertOneDocument, findOneDocument } from "@/app/utils/mongodb";
 import { shuffleDeck, evaluateHand } from "@/app/utils/utils";
-import { GameState } from "@/app/types/store";
-import { ObjectId } from "mongodb";
 import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
 import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
 
 // Function to create the image URL with JSON parameters
-function createImageUrl(playerHand: number[], dealerHand: number[]): string {
+function createImageUrl(
+  playerHand: number[],
+  dealerHand: number[],
+  playerScore: number,
+  dealerScore: number
+): string {
   const params = {
     playerCards: playerHand,
     dealerCards: dealerHand,
+    playerScore,
+    dealerScore,
   };
 
   const jsonParams = encodeURIComponent(JSON.stringify(params));
@@ -23,9 +24,9 @@ function createImageUrl(playerHand: number[], dealerHand: number[]): string {
 
 async function getResponse(request: NextRequest): Promise<NextResponse> {
   const requestBody = (await request.json()) as FrameRequest;
-  console.log("okay");
   const { isValid, message } = await getFrameMessage(requestBody);
   console.log(message);
+
   try {
     const address = message?.raw.action.interactor.custody_address;
 
@@ -35,106 +36,99 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-    return await handleGame(address);
+
+    const unfinishedGame = await findOneDocument("gamedata", {
+      address,
+      isFinished: false,
+    });
+
+    if (unfinishedGame) {
+      return await continueExistingGame(unfinishedGame);
+    }
+
+    return await startNewGame(address);
   } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error processing game:", error);
     return NextResponse.json(
-      { message: "Error creating user" },
+      { message: "Error processing game" },
       { status: 500 }
     );
   }
 }
 
-const handleGame = async (address: string) => {
-  const unfinishedGame = await findOneDocument("gamedata", {
-    address,
-    isFinished: false,
-  });
-
-  if (unfinishedGame) {
-    const imageUrl = createImageUrl(
-      unfinishedGame.playerCards,
-      unfinishedGame.dealerCards
-    );
-
-    return new NextResponse(
-      getFrameHtmlResponse({
-        buttons: [
-          {
-            label: `Hit`,
-            action: "post",
-            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
-          },
-          {
-            label: `Stand`,
-            action: "post",
-            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
-          },
-        ],
-        image: imageUrl,
-      })
-    );
-  } else {
-    const gameState = startNewGame();
-    const gameDocument = createGameDocument(gameState, address);
-    const gameResult = await insertOneDocument("gamedata", gameDocument);
-
-    if (!gameResult.insertedId) {
-      throw new Error("Failed to insert game document");
-    }
-
-    const imageUrl = createImageUrl(
-      gameDocument.playerCards,
-      gameDocument.dealerCards
-    );
-
-    return new NextResponse(
-      getFrameHtmlResponse({
-        buttons: [
-          {
-            label: `Hit`,
-            action: "post",
-            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
-          },
-          {
-            label: `Stand`,
-            action: "post",
-            target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
-          },
-        ],
-        image: imageUrl,
-      })
-    );
-  }
-};
-
-const startNewGame = (): GameState => {
+const startNewGame = async (address: string) => {
   const deck = shuffleDeck();
-  const playerHand = [];
-  const dealerHand = [];
+  const playerCards: number[] = [];
+  const dealerCards: number[] = [];
 
-  if (deck.length >= 4) {
-    playerHand.push(deck.pop()!, deck.pop()!);
-    dealerHand.push(deck.pop()!, deck.pop()!);
+  for (let i = 0; i < 2; i++) {
+    const playerCard = deck.pop();
+    const dealerCard = deck.pop();
+    if (playerCard !== undefined) playerCards.push(playerCard);
+    if (dealerCard !== undefined) dealerCards.push(dealerCard);
   }
 
-  return {
-    playerHand,
-    dealerHand,
-  };
-};
+  if (playerCards.length !== 2 || dealerCards.length !== 2) {
+    throw new Error("Not enough cards in the deck");
+  }
 
-const createGameDocument = (gameState: GameState, address: string) => {
-  return {
+  const playerScore = evaluateHand(playerCards);
+  const dealerScore = evaluateHand([dealerCards[0]]); // Only evaluate the first card for the dealer
+
+  const newGame = {
     address,
-    playerCards: gameState.playerHand,
-    dealerCards: gameState.dealerHand,
-    playerScore: evaluateHand(gameState.playerHand),
-    dealerScore: evaluateHand(gameState.dealerHand),
+    playerCards,
+    dealerCards,
+    playerScore,
+    dealerScore,
     isFinished: false,
     isBusted: false,
-    createdAt: new Date(),
   };
+
+  await insertOneDocument("gamedata", newGame);
+
+  return createGameResponse(playerCards, dealerCards, playerScore, dealerScore);
+};
+
+const continueExistingGame = async (game: any) => {
+  return createGameResponse(
+    game.playerCards,
+    game.dealerCards,
+    game.playerScore,
+    game.dealerScore
+  );
+};
+
+const createGameResponse = (
+  playerCards: number[],
+  dealerCards: number[],
+  playerScore: number,
+  dealerScore: number
+) => {
+  const imageUrl = createImageUrl(
+    playerCards,
+    [dealerCards[0]], // Only show the first dealer card
+    playerScore,
+    dealerScore
+  );
+
+  return new NextResponse(
+    getFrameHtmlResponse({
+      buttons: [
+        {
+          label: `Hit`,
+          action: "post",
+          target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+        },
+        {
+          label: `Stand`,
+          action: "post",
+          target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
+        },
+      ],
+      image: imageUrl,
+    })
+  );
 };
 
 export async function POST(req: NextRequest): Promise<Response> {

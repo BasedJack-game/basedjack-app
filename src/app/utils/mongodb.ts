@@ -1,61 +1,60 @@
-import { MongoClient, Db, Collection } from "mongodb";
+import { MongoClient, Db, MongoClientOptions } from "mongodb";
 
-const uri = process.env.MONGODB_URI || "";
+const uri = process.env.NEXT_PUBLIC_MONGODB_URI || "";
 
 let client: MongoClient | null = null;
+let db: Db | null = null;
 
-async function connectToDatabase(): Promise<Db> {
+async function createMongoClient(): Promise<MongoClient> {
   if (client) {
-    return client.db("blackjack_game");
+    return client;
   }
+  const options: MongoClientOptions = {
+    // You can set a higher socket timeout here if needed
+    socketTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
+  };
+  client = new MongoClient(uri, options);
+  await client.connect();
+  return client;
+}
 
-  client = new MongoClient(uri);
+export async function connectToDatabase(): Promise<Db> {
+  if (db) {
+    return db;
+  }
   try {
-    await client.connect();
+    client = await createMongoClient();
+    db = client.db("blackjack_game");
     console.log("MongoClient connected.");
-    return client.db("blackjack_game");
+    return db;
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
     throw error;
   }
 }
 
-async function getCollection(collectionName: string): Promise<Collection> {
+export async function getCollection(collectionName: string) {
   const database = await connectToDatabase();
   return database.collection(collectionName);
 }
 
 export async function findOneDocument(collectionName: string, query: object) {
-  let collection;
-  try {
-    collection = await getCollection(collectionName);
-    return await collection.findOne(query);
-  } finally {
-    await closeConnection();
-  }
+  const collection = await getCollection(collectionName);
+  return collection.findOne(query);
 }
 
 export async function insertOneDocument(
   collectionName: string,
   document: object
 ) {
-  let collection;
-  try {
-    collection = await getCollection(collectionName);
-    return await collection.insertOne(document);
-  } finally {
-    await closeConnection();
-  }
+  const collection = await getCollection(collectionName);
+  return collection.insertOne(document);
 }
 
 export async function findDocuments(collectionName: string, query: object) {
-  let collection;
-  try {
-    collection = await getCollection(collectionName);
-    return await collection.find(query).toArray();
-  } finally {
-    await closeConnection();
-  }
+  const collection = await getCollection(collectionName);
+  return collection.find(query).toArray();
 }
 
 export async function updateOneDocument(
@@ -63,19 +62,6 @@ export async function updateOneDocument(
   filter: object,
   update: object
 ) {
-  let collection;
-  try {
-    collection = await getCollection(collectionName);
-    return await collection.updateOne(filter, update);
-  } finally {
-    await closeConnection();
-  }
-}
-
-async function closeConnection() {
-  if (client) {
-    await client.close();
-    client = null;
-    console.log("MongoClient connection closed.");
-  }
+  const collection = await getCollection(collectionName);
+  return collection.updateOne(filter, update);
 }
