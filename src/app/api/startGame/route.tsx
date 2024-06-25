@@ -23,6 +23,7 @@ function createImageUrl(playerHand: number[], dealerHand: number[]): string {
 
 async function getResponse(request: NextRequest): Promise<NextResponse> {
   const requestBody = (await request.json()) as FrameRequest;
+  console.log("okay");
   const { isValid, message } = await getFrameMessage(requestBody);
   console.log(message);
   try {
@@ -34,16 +35,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-
-    const existingUser = await findOneDocument("usersdata", {
-      address: address,
-    });
-
-    if (!existingUser) {
-      return await handleNewUser(address, message);
-    } else {
-      return await handleExistingUser(address, existingUser, message);
-    }
+    return await handleGame(address);
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json(
@@ -53,75 +45,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-const handleNewUser = async (address: string, message: any) => {
-  try {
-    const gameState = startNewGame();
-    const gameDocument = createGameDocument(gameState, address);
-
-    // Insert the game document
-    const gameResult = await insertOneDocument("gamedata", gameDocument);
-
-    if (!gameResult.insertedId) {
-      throw new Error("Failed to insert game document");
-    }
-
-    const userDocument = {
-      address,
-      games: [gameResult.insertedId],
-    };
-
-    // Insert the user document
-    const userResult = await insertOneDocument("usersdata", userDocument);
-
-    if (!userResult.insertedId) {
-      throw new Error("Failed to insert user document");
-    }
-
-    const imageUrl = createImageUrl(
-      gameDocument.playerCards,
-      gameDocument.dealerCards
-    );
-
-    return new NextResponse(
-      getFrameHtmlResponse({
-        buttons: [
-          {
-            label: `Hit`,
-            action: "post",
-            target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
-          },
-          {
-            label: `Stand`,
-            action: "post",
-            target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
-          },
-        ],
-        image: imageUrl,
-        // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/game`,
-      })
-    );
-  } catch (error) {
-    console.error("Error in handleNewUser:", error);
-    return new NextResponse(
-      getFrameHtmlResponse({
-        buttons: [
-          {
-            label: `Try Again`,
-            action: "post",
-          },
-        ],
-        image: `${process.env.NEXT_PUBLIC_URL}/error-image.jpg`,
-        postUrl: `${process.env.NEXT_PUBLIC_URL}/api/game`,
-      })
-    );
-  }
-};
-
-const handleExistingUser = async (
-  address: string,
-  existingUser: any,
-  message: any
-) => {
+const handleGame = async (address: string) => {
   const unfinishedGame = await findOneDocument("gamedata", {
     address,
     isFinished: false,
@@ -148,7 +72,6 @@ const handleExistingUser = async (
           },
         ],
         image: imageUrl,
-        // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
       })
     );
   } else {
@@ -156,11 +79,9 @@ const handleExistingUser = async (
     const gameDocument = createGameDocument(gameState, address);
     const gameResult = await insertOneDocument("gamedata", gameDocument);
 
-    await updateOneDocument(
-      "usersdata",
-      { _id: new ObjectId(existingUser._id) },
-      { $push: { games: gameResult.insertedId } }
-    );
+    if (!gameResult.insertedId) {
+      throw new Error("Failed to insert game document");
+    }
 
     const imageUrl = createImageUrl(
       gameDocument.playerCards,
@@ -182,7 +103,6 @@ const handleExistingUser = async (
           },
         ],
         image: imageUrl,
-        // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
       })
     );
   }
