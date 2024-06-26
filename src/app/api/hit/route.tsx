@@ -67,7 +67,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
               target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
             },
           ],
-          image: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+          image: `${process.env.NEXT_PUBLIC_URL}/download.jpg`,
         })
       );
     }

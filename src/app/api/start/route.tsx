@@ -31,7 +31,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         },
       ],
       image: `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?username=${document.username}`,
-      postUrl: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+      postUrl: `${process.env.NEXT_PUBLIC_URL}/download.jpg`,
     })
   );
 }

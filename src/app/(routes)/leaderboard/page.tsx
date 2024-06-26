@@ -23,7 +23,7 @@ export async function generateMetadata({
       },
     ],
     image: `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?username=0xdab`,
-    post_url: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+    post_url: `${process.env.NEXT_PUBLIC_URL}/download.jpg`,
   });
 
   return {
@@ -32,7 +32,7 @@ export async function generateMetadata({
     openGraph: {
       title: name,
       description: "Check if you're eligible for a free mint",
-      images: [`${process.env.NEXT_PUBLIC_URL}/public.jpg`],
+      images: [`${process.env.NEXT_PUBLIC_URL}/download.jpg`],
     },
     other: {
       ...frameMetadata,

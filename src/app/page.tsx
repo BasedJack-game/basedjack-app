@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
         label: "Start game",
       },
     ],
-    image: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
+    image: `${process.env.NEXT_PUBLIC_URL}/download.jpg`,
     post_url: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
   });
 
@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: name,
       description: "Classic Blackjack game on Farcaster",
-      images: [`${process.env.NEXT_PUBLIC_URL}/public.jpg`],
+      images: [`${process.env.NEXT_PUBLIC_URL}/download.jpg`],
     },
     other: {
       ...frameMetadata,

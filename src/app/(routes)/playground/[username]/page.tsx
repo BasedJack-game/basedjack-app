@@ -38,7 +38,7 @@ export async function generateMetadata({
     openGraph: {
       title: name,
       description: "Check if you're eligible for a free mint",
-      images: [`${process.env.NEXT_PUBLIC_URL}/public.jpg`],
+      images: [`${process.env.NEXT_PUBLIC_URL}/download.jpg`],
     },
     other: {
       ...frameMetadata,
