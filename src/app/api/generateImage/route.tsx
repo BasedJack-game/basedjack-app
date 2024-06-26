@@ -36,8 +36,6 @@ function cardValueToNumber(value: string): number {
   return parseInt(value);
 }
 
-// In api/generateImage
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -73,7 +71,7 @@ export async function GET(request: NextRequest) {
       dealerScore > 21 ? " (Busted)" : ""
     }`;
 
-    return new ImageResponse(
+    const imageResponse = new ImageResponse(
       (
         <div
           style={{
@@ -105,12 +103,18 @@ export async function GET(request: NextRequest) {
         height: 630,
       }
     );
-  } catch (error) {
+
+    return new Response(imageResponse.body, {
+      headers: {
+        "Content-Type": "image/png",
+      },
+    });
+  } catch (error: any) {
     console.error("Error generating image:", error);
     return new Response(
       JSON.stringify({
         message: "Error generating image",
-        // error: error.message,
+        error: error.message,
       }),
       {
         status: 500,

@@ -1,24 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { evaluateHand, shuffleDeck } from "@/app/utils/utils";
-import { findOneDocument, updateOneDocument } from "@/app/utils/mongodb";
-import { ObjectId } from "mongodb";
+import { shuffleDeck, evaluateHand } from "@/app/utils/utils";
+import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
+import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
+import { MongoClient } from "mongodb";
 
-export async function POST(request: NextRequest) {
+function createImageUrl(
+  playerHand: number[],
+  dealerHand: number[],
+  playerScore: number,
+  dealerScore: number
+): string {
+  const params = {
+    playerCards: playerHand,
+    dealerCards: dealerHand,
+    playerScore,
+    dealerScore,
+  };
+
+  const jsonParams = encodeURIComponent(JSON.stringify(params));
+  return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${jsonParams}`;
+}
+
+const client = new MongoClient(process.env.NEXT_PUBLIC_MONGODB_URI || "");
+
+async function getResponse(request: NextRequest): Promise<NextResponse> {
+  const requestBody = (await request.json()) as FrameRequest;
+  const { isValid, message } = await getFrameMessage(requestBody);
+  console.log(message);
+
   try {
-    // Parse the JSON body from the request
-    const body = await request.json();
-    const { address } = body;
+    await client.connect();
 
-    // Validate required fields
+    const db = client.db("blackjack_game");
+    const gameCollection = db.collection("gamedata");
+
+    const address = message?.raw.action.interactor.custody_address;
+    console.log("custody address", address);
+
     if (!address) {
       return NextResponse.json(
-        { message: "address and address are required" },
+        { message: "address is required" },
         { status: 400 }
       );
     }
 
-    // check for unfinished game
-    const unfinishedGame = await findOneDocument("gamedata", {
+    const unfinishedGame = await gameCollection.findOne({
       address,
       isFinished: false,
     });
@@ -30,69 +56,81 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let deck = shuffleDeck();
-    const usedCards = [
-      ...unfinishedGame.playerCards,
-      ...unfinishedGame.dealerCards,
-    ];
-    deck = deck.filter((card) => !usedCards.includes(card));
-
-    while (evaluateHand(unfinishedGame.dealerCards) < 17) {
-      unfinishedGame.dealerCards.push(deck.pop());
-    }
-
-    // Evaluate the final hands
-    const playerValue = evaluateHand(unfinishedGame.playerCards);
-    const dealerValue = evaluateHand(unfinishedGame.dealerCards);
-
-    // Update the game document
-    const updatedGame = {
-      dealerCards: unfinishedGame.dealerCards,
-      playerScore: playerValue,
-      dealerScore: dealerValue,
-      isFinished: true,
-      isBusted: !(
-        playerValue <= 21 &&
-        (playerValue > dealerValue || dealerValue > 21)
-      ),
-    };
-
-    await updateOneDocument(
-      "gamedata",
-      { _id: new ObjectId(unfinishedGame._id) },
-      { $set: updatedGame }
-    );
-
-    const user = await findOneDocument("usersdata", { address });
-    if (user) {
-      const updates = {
-        totalGames: (user.totalGames || 0) + 1,
-        totalWins: user.totalWins || 0,
-      };
-
-      playerValue <= 21 && (playerValue > dealerValue || dealerValue > 21)
-        ? (updates.totalWins += 1)
-        : updates.totalWins;
-
-      await updateOneDocument(
-        "usersdata",
-        { _id: new ObjectId(user._id) },
-        { $set: updates }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        message: "Game Finished",
-        gameState: updatedGame,
-      },
-      { status: 200 }
-    );
+    return await finishGame(unfinishedGame, gameCollection);
   } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error processing game:", error);
     return NextResponse.json(
-      { message: "Error creating user" },
+      { message: "Error processing game" },
       { status: 500 }
     );
+  } finally {
+    await client.close();
   }
 }
+
+const finishGame = async (game: any, gameCollection: any) => {
+  let deck = shuffleDeck();
+  const usedCards = [...game.playerCards, ...game.dealerCards];
+  deck = deck.filter((card) => !usedCards.includes(card));
+
+  const playerScore = evaluateHand(game.playerCards);
+
+  // Dealer hits until 17 or higher
+  while (evaluateHand(game.dealerCards) < 17) {
+    const newCard = deck.pop();
+    if (newCard !== undefined) game.dealerCards.push(newCard);
+  }
+
+  const dealerScore = evaluateHand(game.dealerCards);
+
+  let result;
+  if (dealerScore > 21) {
+    result = "Player Wins! Dealer Busted";
+  } else if (dealerScore > playerScore) {
+    result = "Dealer Wins";
+  } else if (dealerScore < playerScore) {
+    result = "Player Wins";
+  } else {
+    result = "It's a Tie";
+  }
+
+  const updatedGame = {
+    dealerCards: game.dealerCards,
+    playerScore,
+    dealerScore,
+    isFinished: true,
+    result,
+  };
+
+  await gameCollection.updateOne(
+    { address: game.address, isFinished: false },
+    { $set: updatedGame }
+  );
+
+  const imageUrl = createImageUrl(
+    game.playerCards,
+    game.dealerCards,
+    playerScore,
+    dealerScore
+  );
+
+  return new NextResponse(
+    getFrameHtmlResponse({
+      buttons: [
+        {
+          label: `Play Again`,
+          action: "post",
+          target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
+        },
+      ],
+      image: imageUrl,
+      postUrl: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
+    })
+  );
+};
+
+export async function POST(req: NextRequest): Promise<Response> {
+  return getResponse(req);
+}
+
+export const dynamic = "force-dynamic";

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { insertOneDocument, findOneDocument } from "@/app/utils/mongodb";
 import { shuffleDeck, evaluateHand } from "@/app/utils/utils";
 import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
 import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
+import { MongoClient } from "mongodb";
 
 // Function to create the image URL with JSON parameters
 function createImageUrl(
@@ -22,13 +22,21 @@ function createImageUrl(
   return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${jsonParams}`;
 }
 
+const client = new MongoClient(process.env.NEXT_PUBLIC_MONGODB_URI || "");
+
 async function getResponse(request: NextRequest): Promise<NextResponse> {
   const requestBody = (await request.json()) as FrameRequest;
   const { isValid, message } = await getFrameMessage(requestBody);
   console.log(message);
 
   try {
+    await client.connect(); // Ensure the client is connected
+
+    const db = client.db("blackjack_game");
+    const collection = db.collection("gamedata");
+
     const address = message?.raw.action.interactor.custody_address;
+    console.log("custody address", address);
 
     if (!address) {
       return NextResponse.json(
@@ -37,26 +45,31 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const unfinishedGame = await findOneDocument("gamedata", {
+    const unfinishedGame = await collection.findOne({
       address,
       isFinished: false,
     });
+
+    console.log("the mongo obj", unfinishedGame);
 
     if (unfinishedGame) {
       return await continueExistingGame(unfinishedGame);
     }
 
-    return await startNewGame(address);
+    return await startNewGame(address, collection);
   } catch (error) {
     console.error("Error processing game:", error);
     return NextResponse.json(
       { message: "Error processing game" },
       { status: 500 }
     );
+  } finally {
+    await client.close(); // Ensure the client is closed
   }
 }
 
-const startNewGame = async (address: string) => {
+const startNewGame = async (address: string, collection: any) => {
+  console.log("starting new game");
   const deck = shuffleDeck();
   const playerCards: number[] = [];
   const dealerCards: number[] = [];
@@ -85,12 +98,13 @@ const startNewGame = async (address: string) => {
     isBusted: false,
   };
 
-  await insertOneDocument("gamedata", newGame);
+  await collection.insertOne(newGame);
 
   return createGameResponse(playerCards, dealerCards, playerScore, dealerScore);
 };
 
 const continueExistingGame = async (game: any) => {
+  console.log("continuing the game:::");
   return createGameResponse(
     game.playerCards,
     game.dealerCards,

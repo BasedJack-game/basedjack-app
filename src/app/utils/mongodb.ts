@@ -5,56 +5,100 @@ const uri = process.env.NEXT_PUBLIC_MONGODB_URI || "";
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
-async function createMongoClient(): Promise<MongoClient> {
+async function createMongoClient(
+  retries = 5,
+  delay = 2000
+): Promise<MongoClient> {
   if (client) {
     return client;
   }
   const options: MongoClientOptions = {
-    // You can set a higher socket timeout here if needed
-    socketTimeoutMS: 30000,
-    connectTimeoutMS: 30000,
+    socketTimeoutMS: 60000,
+    connectTimeoutMS: 60000,
+    retryWrites: true,
+    w: "majority",
   };
   client = new MongoClient(uri, options);
-  await client.connect();
+
+  for (let i = 0; i < retries; i++) {
+    try {
+      await client.connect();
+      console.log("MongoClient connected successfully.");
+      return client;
+    } catch (error) {
+      console.error(`Error connecting MongoClient (attempt ${i + 1}):`, error);
+      if (i < retries - 1) {
+        console.log(`Retrying in ${delay / 1000} seconds...`);
+        await new Promise((res) => setTimeout(res, delay));
+      } else {
+        throw error;
+      }
+    }
+  }
   return client;
 }
 
-export async function connectToDatabase(): Promise<Db> {
+async function connectToDatabase(): Promise<Db> {
   if (db) {
     return db;
   }
   try {
     client = await createMongoClient();
     db = client.db("blackjack_game");
-    console.log("MongoClient connected.");
+    console.log("Connected to database:", "blackjack_game");
     return db;
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    console.error("Error connecting to database:", error);
     throw error;
   }
 }
 
-export async function getCollection(collectionName: string) {
+async function closeMongoClient() {
+  if (client) {
+    try {
+      await client.close();
+      console.log("MongoClient disconnected.");
+    } catch (error) {
+      console.error("Error closing MongoClient:", error);
+    }
+    client = null;
+    db = null;
+  }
+}
+
+async function getCollection(collectionName: string) {
   const database = await connectToDatabase();
   return database.collection(collectionName);
 }
 
 export async function findOneDocument(collectionName: string, query: object) {
-  const collection = await getCollection(collectionName);
-  return collection.findOne(query);
+  try {
+    const collection = await getCollection(collectionName);
+    return await collection.findOne(query);
+  } finally {
+    await closeMongoClient();
+  }
 }
 
 export async function insertOneDocument(
   collectionName: string,
   document: object
 ) {
-  const collection = await getCollection(collectionName);
-  return collection.insertOne(document);
+  try {
+    const collection = await getCollection(collectionName);
+    return await collection.insertOne(document);
+  } finally {
+    await closeMongoClient();
+  }
 }
 
 export async function findDocuments(collectionName: string, query: object) {
-  const collection = await getCollection(collectionName);
-  return collection.find(query).toArray();
+  try {
+    const collection = await getCollection(collectionName);
+    return await collection.find(query).toArray();
+  } finally {
+    await closeMongoClient();
+  }
 }
 
 export async function updateOneDocument(
@@ -62,6 +106,10 @@ export async function updateOneDocument(
   filter: object,
   update: object
 ) {
-  const collection = await getCollection(collectionName);
-  return collection.updateOne(filter, update);
+  try {
+    const collection = await getCollection(collectionName);
+    return await collection.updateOne(filter, update);
+  } finally {
+    await closeMongoClient();
+  }
 }
