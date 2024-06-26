@@ -126,7 +126,7 @@ const handleHit = async (address: string, game: any, collection: any) => {
             {
               label: `Stand`,
               action: "post",
-              target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+              target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
             },
           ],
       image: imageUrl,

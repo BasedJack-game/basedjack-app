@@ -82,6 +82,8 @@ const finishGame = async (game: any, gameCollection: any) => {
   }
 
   const dealerScore = evaluateHand(game.dealerCards);
+  console.log("dealer score", dealerScore);
+  console.log("player score", playerScore);
 
   let result;
   if (dealerScore > 21) {
