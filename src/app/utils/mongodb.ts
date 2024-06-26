@@ -144,6 +144,6 @@ export async function getTopPlayers(limit: number = 3) {
       }
     ]).toArray();
   } finally {
-    await closeConnection();
+    await closeMongoClient();
   }
 }
