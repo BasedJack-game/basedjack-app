@@ -4,18 +4,28 @@ import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit/frame";
 import { getFrameHtmlResponse } from "@coinbase/onchainkit/frame";
 import { MongoClient } from "mongodb";
 
+// Define the GameResult enum
+enum GameResult {
+  Ongoing = 0,
+  PlayerWins = 1,
+  DealerWins = 2,
+  Tie = 3,
+}
+
 // Function to create the image URL with JSON parameters
 function createImageUrl(
   playerHand: number[],
   dealerHand: number[],
   playerScore: number,
-  dealerScore: number
+  dealerScore: number,
+  result: GameResult
 ): string {
   const params = {
     playerCards: playerHand,
     dealerCards: dealerHand,
     playerScore,
     dealerScore,
+    result,
   };
 
   const jsonParams = encodeURIComponent(JSON.stringify(params));
@@ -30,7 +40,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
   console.log(message);
 
   try {
-    await client.connect(); // Ensure the client is connected
+    await client.connect();
 
     const db = client.db("blackjack_game");
     const collection = db.collection("gamedata");
@@ -47,7 +57,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
 
     const unfinishedGame = await collection.findOne({
       address,
-      isFinished: false,
+      result: GameResult.Ongoing,
     });
 
     console.log("the mongo obj", unfinishedGame);
@@ -64,7 +74,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
       { status: 500 }
     );
   } finally {
-    await client.close(); // Ensure the client is closed
+    await client.close();
   }
 }
 
@@ -94,13 +104,19 @@ const startNewGame = async (address: string, collection: any) => {
     dealerCards,
     playerScore,
     dealerScore,
-    isFinished: false,
-    isBusted: false,
+    result: GameResult.Ongoing,
+    createdAt: new Date(), // Add createdAt field
   };
 
   await collection.insertOne(newGame);
 
-  return createGameResponse(playerCards, dealerCards, playerScore, dealerScore);
+  return createGameResponse(
+    playerCards,
+    dealerCards,
+    playerScore,
+    dealerScore,
+    GameResult.Ongoing
+  );
 };
 
 const continueExistingGame = async (game: any) => {
@@ -109,7 +125,8 @@ const continueExistingGame = async (game: any) => {
     game.playerCards,
     game.dealerCards,
     game.playerScore,
-    game.dealerScore
+    game.dealerScore,
+    game.result
   );
 };
 
@@ -117,13 +134,15 @@ const createGameResponse = (
   playerCards: number[],
   dealerCards: number[],
   playerScore: number,
-  dealerScore: number
+  dealerScore: number,
+  result: GameResult
 ) => {
   const imageUrl = createImageUrl(
     playerCards,
     [dealerCards[0]], // Only show the first dealer card
     playerScore,
-    dealerScore
+    dealerScore,
+    result
   );
 
   return new NextResponse(

@@ -7,19 +7,27 @@ import { MongoClient } from "mongodb";
 // Function to create the image URL with JSON parameters
 function createImageUrl(
   playerHand: number[],
-  dealerHand: number[],
+  visibleDealerCard: number,
   playerScore: number,
-  dealerScore: number
+  dealerScore: number,
+  result: GameResult
 ): string {
   const params = {
     playerCards: playerHand,
-    dealerCards: dealerHand,
+    dealerCards: [visibleDealerCard], // Only pass the visible dealer card
     playerScore,
     dealerScore,
+    result,
   };
 
   const jsonParams = encodeURIComponent(JSON.stringify(params));
   return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${jsonParams}`;
+}
+enum GameResult {
+  Ongoing = 0,
+  PlayerWins = 1,
+  DealerWins = 2,
+  Tie = 3,
 }
 
 const client = new MongoClient(process.env.NEXT_PUBLIC_MONGODB_URI || "");
@@ -47,7 +55,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
 
     const unfinishedGame = await collection.findOne({
       address,
-      isFinished: false,
+      result: GameResult.Ongoing,
     });
 
     if (!unfinishedGame) {
@@ -55,11 +63,10 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
         getFrameHtmlResponse({
           buttons: [
             {
-              label: "Game Over",
+              label: "Start Game",
               target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
             },
           ],
-
           image: `${process.env.NEXT_PUBLIC_URL}/public.jpg`,
         })
       );
@@ -86,49 +93,55 @@ const handleHit = async (address: string, game: any, collection: any) => {
 
   const playerValue = evaluateHand(game.playerCards);
 
-  let gameFinished = false;
-  let isBusted = false;
+  let result: GameResult = GameResult.Ongoing;
 
   console.log(playerValue);
   if (playerValue > 21) {
-    gameFinished = true;
-    isBusted = true;
+    result = GameResult.DealerWins;
   }
 
   const updatedGame = {
     playerCards: game.playerCards,
     playerScore: playerValue,
-    isFinished: gameFinished,
-    isBusted: isBusted,
+    result: result,
   };
-  const update = await collection.updateOne(
-    { _id: game._id },
-    { $set: updatedGame }
-  );
+
+  await collection.updateOne({ _id: game._id }, { $set: updatedGame });
+
+  const visibleDealerCard = game.dealerCards[0]; // Only use the first dealer card
+  const visibleDealerScore = evaluateHand([visibleDealerCard]); // Evaluate score for visible card only
 
   const imageUrl = createImageUrl(
     updatedGame.playerCards,
-    game.dealerCards,
+    visibleDealerCard,
     playerValue,
-    game.dealerScore
+    visibleDealerScore,
+    result
   );
 
   return new NextResponse(
     getFrameHtmlResponse({
-      buttons: gameFinished
-        ? [{ label: "Game Over" }]
-        : [
-            {
-              label: `Hit`,
-              action: "post",
-              target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
-            },
-            {
-              label: `Stand`,
-              action: "post",
-              target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
-            },
-          ],
+      buttons:
+        result !== GameResult.Ongoing
+          ? [
+              {
+                label: `Play again🔁`,
+                action: "post",
+                target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
+              },
+            ]
+          : [
+              {
+                label: `Hit`,
+                action: "post",
+                target: `${process.env.NEXT_PUBLIC_URL}/api/hit`,
+              },
+              {
+                label: `Stand`,
+                action: "post",
+                target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
+              },
+            ],
       image: imageUrl,
     })
   );
