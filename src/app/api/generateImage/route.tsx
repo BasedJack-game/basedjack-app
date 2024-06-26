@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { createCanvas } from "canvas";
+import { ImageResponse } from "@vercel/og";
 
 const suits = ["♠", "♥", "♦", "♣"];
 const values = [
@@ -27,10 +27,7 @@ function mapNumberToCard(num: number): Card {
   if (num < 1 || num > 52) throw new Error("Invalid card number");
   const suitIndex = Math.floor((num - 1) / 13);
   const valueIndex = (num - 1) % 13;
-  return {
-    value: values[valueIndex],
-    suit: suits[suitIndex],
-  };
+  return { value: values[valueIndex], suit: suits[suitIndex] };
 }
 
 function cardValueToNumber(value: string): number {
@@ -51,63 +48,79 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const { playerCards, dealerCards } = JSON.parse(
+    const { playerCards, dealerCards, playerScore, dealerScore } = JSON.parse(
       decodeURIComponent(params)
-    ) as { playerCards: number[]; dealerCards: number[] };
+    ) as {
+      playerCards: number[];
+      dealerCards: number[];
+      playerScore: number;
+      dealerScore: number;
+    };
 
     const playerHand: Card[] = playerCards.map(mapNumberToCard);
     const dealerHand: Card[] = dealerCards.map(mapNumberToCard);
 
-    const playerSum = playerHand.reduce(
-      (sum: number, card: Card) => sum + cardValueToNumber(card.value),
-      0
-    );
-    const dealerSum = dealerHand.reduce(
-      (sum: number, card: Card) => sum + cardValueToNumber(card.value),
-      0
-    );
-
-    const canvas = createCanvas(1200, 630);
-    const ctx = canvas.getContext("2d");
-
-    // Set background
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, 1200, 630);
-
-    // Set text properties
-    ctx.font = "32px Arial";
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-
-    // Determine if player or dealer is busted
     const playerText = `Player: ${playerHand
-      .map((card: Card) => `${card.value}${card.suit}`)
-      .join(", ")} - Total: ${playerSum}${playerSum > 21 ? " (Busted)" : ""}`;
-
+      .map((card) => `${card.value}${card.suit}`)
+      .join(", ")} - Total: ${playerScore}${
+      playerScore > 21 ? " (Busted)" : ""
+    }`;
     const dealerText = `Dealer: ${dealerHand
-      .map((card: Card) => `${card.value}${card.suit}`)
-      .join(", ")} - Total: ${dealerSum}${dealerSum > 21 ? " (Busted)" : ""}`;
+      .map((card) => `${card.value}${card.suit}`)
+      .join(", ")} - Total: ${dealerScore}${
+      dealerScore > 21 ? " (Busted)" : ""
+    }`;
 
-    // Draw player's hand
-    ctx.fillText(playerText, 600, 280);
+    const imageResponse = new ImageResponse(
+      (
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "white",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: "bold",
+              marginBottom: "20px",
+            }}
+          >
+            {playerText}
+          </div>
+          <div style={{ fontSize: "32px", fontWeight: "bold" }}>
+            {dealerText}
+          </div>
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
 
-    // Draw dealer's hand
-    ctx.fillText(dealerText, 600, 350);
-
-    const buffer = canvas.toBuffer("image/png");
-
-    return new Response(buffer, {
+    return new Response(imageResponse.body, {
       headers: {
         "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating image:", error);
-    return new Response(JSON.stringify({ message: "Error generating image" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        message: "Error generating image",
+        error: error.message,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
 
