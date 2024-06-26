@@ -36,3 +36,4 @@ export const evaluateHand = (hand: any) => {
 
     return value;
 };
+

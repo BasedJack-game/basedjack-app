@@ -113,3 +113,37 @@ export async function updateOneDocument(
     await closeMongoClient();
   }
 }
+
+// utils/mongodb.ts
+
+// ... (keep your existing code)
+
+export async function getTopPlayers(limit: number = 3) {
+  let collection;
+  try {
+    collection = await getCollection("gamedata");
+    return await collection.aggregate([
+      {
+        $match: {
+          isFinished: true,
+          isBusted: false,
+          $expr: { $gt: ["$playerScore", "$dealerScore"] }
+        }
+      },
+      {
+        $group: {
+          _id: "$address",
+          gamesWon: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { gamesWon: -1 }
+      },
+      {
+        $limit: limit
+      }
+    ]).toArray();
+  } finally {
+    await closeMongoClient();
+  }
+}
