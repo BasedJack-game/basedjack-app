@@ -8,17 +8,26 @@ function createImageUrl(
   playerHand: number[],
   dealerHand: number[],
   playerScore: number,
-  dealerScore: number
+  dealerScore: number,
+  result: GameResult
 ): string {
   const params = {
     playerCards: playerHand,
     dealerCards: dealerHand,
     playerScore,
     dealerScore,
+    result,
   };
 
   const jsonParams = encodeURIComponent(JSON.stringify(params));
   return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${jsonParams}`;
+}
+
+enum GameResult {
+  Ongoing = 0,
+  PlayerWins = 1,
+  DealerWins = 2,
+  Tie = 3,
 }
 
 const client = new MongoClient(process.env.NEXT_PUBLIC_MONGODB_URI || "");
@@ -46,7 +55,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
 
     const unfinishedGame = await gameCollection.findOne({
       address,
-      isFinished: false,
+      result: GameResult.Ongoing,
     });
 
     if (!unfinishedGame) {
@@ -75,37 +84,40 @@ const finishGame = async (game: any, gameCollection: any) => {
 
   const playerScore = evaluateHand(game.playerCards);
 
-  // Dealer hits until 17 or higher
-  while (evaluateHand(game.dealerCards) < 17) {
+  // Dealer plays
+  while (
+    evaluateHand(game.dealerCards) < 17 ||
+    (evaluateHand(game.dealerCards) === 17 && isSoft17(game.dealerCards))
+  ) {
     const newCard = deck.pop();
-    if (newCard !== undefined) game.dealerCards.push(newCard);
+    if (newCard !== undefined) {
+      game.dealerCards.push(newCard);
+    }
   }
 
   const dealerScore = evaluateHand(game.dealerCards);
-  console.log("dealer score", dealerScore);
-  console.log("player score", playerScore);
 
-  let result;
+  // Determine the result
+  let result: GameResult;
   if (dealerScore > 21) {
-    result = "Player Wins! Dealer Busted";
+    result = GameResult.PlayerWins;
+  } else if (dealerScore === playerScore) {
+    result = GameResult.Tie;
   } else if (dealerScore > playerScore) {
-    result = "Dealer Wins";
-  } else if (dealerScore < playerScore) {
-    result = "Player Wins";
+    result = GameResult.DealerWins;
   } else {
-    result = "It's a Tie";
+    result = GameResult.PlayerWins;
   }
 
   const updatedGame = {
     dealerCards: game.dealerCards,
     playerScore,
     dealerScore,
-    isFinished: true,
     result,
   };
 
   await gameCollection.updateOne(
-    { address: game.address, isFinished: false },
+    { address: game.address, result: GameResult.Ongoing },
     { $set: updatedGame }
   );
 
@@ -113,14 +125,15 @@ const finishGame = async (game: any, gameCollection: any) => {
     game.playerCards,
     game.dealerCards,
     playerScore,
-    dealerScore
+    dealerScore,
+    result
   );
 
   return new NextResponse(
     getFrameHtmlResponse({
       buttons: [
         {
-          label: `Play Again`,
+          label: `Play Again🔁`,
           action: "post",
           target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
         },
@@ -130,6 +143,13 @@ const finishGame = async (game: any, gameCollection: any) => {
     })
   );
 };
+
+// Helper function to check for soft 17
+function isSoft17(hand: number[]): boolean {
+  const score = evaluateHand(hand);
+  const hasAce = hand.some((card) => card === 1); // Assuming Ace is represented by 1
+  return score === 17 && hasAce;
+}
 
 export async function POST(req: NextRequest): Promise<Response> {
   return getResponse(req);

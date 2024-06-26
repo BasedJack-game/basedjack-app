@@ -30,10 +30,11 @@ function mapNumberToCard(num: number): Card {
   return { value: values[valueIndex], suit: suits[suitIndex] };
 }
 
-function cardValueToNumber(value: string): number {
-  if (value === "A") return 11;
-  if (["J", "Q", "K"].includes(value)) return 10;
-  return parseInt(value);
+enum GameResult {
+  Ongoing = 0,
+  PlayerWins = 1,
+  DealerWins = 2,
+  Tie = 3,
 }
 
 export async function GET(request: NextRequest) {
@@ -48,14 +49,14 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const { playerCards, dealerCards, playerScore, dealerScore } = JSON.parse(
-      decodeURIComponent(params)
-    ) as {
-      playerCards: number[];
-      dealerCards: number[];
-      playerScore: number;
-      dealerScore: number;
-    };
+    const { playerCards, dealerCards, playerScore, dealerScore, result } =
+      JSON.parse(decodeURIComponent(params)) as {
+        playerCards: number[];
+        dealerCards: number[];
+        playerScore: number;
+        dealerScore: number;
+        result: GameResult;
+      };
 
     const playerHand: Card[] = playerCards.map(mapNumberToCard);
     const dealerHand: Card[] = dealerCards.map(mapNumberToCard);
@@ -70,6 +71,15 @@ export async function GET(request: NextRequest) {
       .join(", ")} - Total: ${dealerScore}${
       dealerScore > 21 ? " (Busted)" : ""
     }`;
+
+    let resultText = "";
+    if (result === GameResult.PlayerWins) {
+      resultText = "Player Wins!";
+    } else if (result === GameResult.DealerWins) {
+      resultText = "Dealer Wins!";
+    } else if (result === GameResult.Tie) {
+      resultText = "It's a Tie!";
+    }
 
     const imageResponse = new ImageResponse(
       (
@@ -93,9 +103,20 @@ export async function GET(request: NextRequest) {
           >
             {playerText}
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "bold" }}>
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: "bold",
+              marginBottom: "20px",
+            }}
+          >
             {dealerText}
           </div>
+          {resultText && (
+            <div style={{ fontSize: "48px", fontWeight: "bold", color: "red" }}>
+              {resultText}
+            </div>
+          )}
         </div>
       ),
       {
