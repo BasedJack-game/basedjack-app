@@ -28,7 +28,7 @@ export async function generateMetadata({
         target: `${process.env.NEXT_PUBLIC_URL}/leaderboard`,
       },
     ],
-    image: `${process.env.NEXT_PUBLIC_URL}/public2.jpg`,
+    image: `${process.env.NEXT_PUBLIC_URL}/download.jpg`,
     post_url: `${process.env.NEXT_PUBLIC_URL}/leaderboard`,
   });
 

@@ -8,9 +8,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const frameMetadata = getFrameMetadata({
     buttons: [
       {
-        label: "Start game",
+        label: "Start game🃏",
         action: "post",
         target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
+      },
+      {
+        label: `Your stats📊`,
+        action: "post",
+        target: `${process.env.NEXT_PUBLIC_URL}/api/userStats`,
       },
       {
         label: `Share Game`,
@@ -19,7 +24,6 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     ],
     image: `${process.env.NEXT_PUBLIC_URL}/download.jpg`,
-    // post_url: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
   });
 
   return {
