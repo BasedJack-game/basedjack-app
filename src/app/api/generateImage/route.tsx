@@ -81,6 +81,9 @@ export async function GET(request: NextRequest) {
       resultText = "It's a Tie!";
     }
 
+    const width = 1980;
+    const height = Math.round(width / 1.91); // This will be approximately 1037
+
     const imageResponse = new ImageResponse(
       (
         <div
@@ -91,37 +94,53 @@ export async function GET(request: NextRequest) {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "white",
+            backgroundImage: `url(${process.env.NEXT_PUBLIC_URL}/playground.png)`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <div
             style={{
-              fontSize: "32px",
+              fontSize: "48px",
               fontWeight: "bold",
-              marginBottom: "20px",
+              marginBottom: "40px",
+              color: "white",
+              textAlign: "center",
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
             }}
           >
             {playerText}
           </div>
           <div
             style={{
-              fontSize: "32px",
+              fontSize: "48px",
               fontWeight: "bold",
-              marginBottom: "20px",
+              marginBottom: "40px",
+              color: "white",
+              textAlign: "center",
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
             }}
           >
             {dealerText}
           </div>
           {resultText && (
-            <div style={{ fontSize: "48px", fontWeight: "bold", color: "red" }}>
+            <div
+              style={{
+                fontSize: "72px",
+                fontWeight: "bold",
+                color: "red",
+                textAlign: "center",
+                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+              }}
+            >
               {resultText}
             </div>
           )}
         </div>
       ),
       {
-        width: 1200,
-        height: 630,
+        width: width,
+        height: height,
       }
     );
 
