@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { NextRequest, NextResponse } from "next/server";
 import { ImageResponse } from "@vercel/og";
 
@@ -24,88 +25,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const imageResponse = new ImageResponse(
       (
-        // <div
-        //   style={{
-        //     display: "flex",
-        //     flexDirection: "column",
-        //     alignItems: "center",
-        //     justifyContent: "center",
-        //     height: "100%",
-        //     width: "100%",
-        //     backgroundImage: `url(${process.env.NEXT_PUBLIC_URL}/stats_bg.png)`,
-        //     backgroundSize: "cover",
-        //     backgroundPosition: "center",
-        //     position: "relative",
-        //   }}
-        // >
-        //   <div
-        //     style={{
-        //       position: "absolute",
-        //       top: 0,
-        //       left: 0,
-        //       width: "100%",
-        //       height: "100%",
-        //       backgroundColor: "rgba(0, 0, 0, 0.6)",
-        //     }}
-        //   ></div>
-        //   <div
-        //     style={{
-        //       display: "flex",
-        //       flexDirection: "column",
-        //       alignItems: "center",
-        //       justifyContent: "center",
-        //       zIndex: 1,
-        //       padding: "40px",
-        //     }}
-        //   >
-        //     <div
-        //       style={{
-        //         display: "flex",
-        //         flexDirection: "column",
-        //         alignItems: "center",
-        //         justifyContent: "center",
-        //         fontSize: "72px",
-        //         fontWeight: "bold",
-        //         marginBottom: "40px",
-        //         color: "white",
-        //         textAlign: "center",
-        //         textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
-        //       }}
-        //     >
-        //       User Stats
-        //     </div>
-        //     <div
-        //       style={{
-        //         display: "flex",
-        //         flexDirection: "column",
-        //         alignItems: "center",
-        //         justifyContent: "center",
-        //         fontSize: "48px",
-        //         fontWeight: "bold",
-        //         color: "white",
-        //         textAlign: "center",
-        //         textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
-        //         gap: "20px",
-        //       }}
-        //     >
-        //       <div style={{ display: "flex" }}>
-        //         Total Games: {userStats.stats.totalGames}
-        //       </div>
-        //       <div style={{ display: "flex" }}>
-        //         Games Won: {userStats.stats.gamesWon}
-        //       </div>
-        //       <div style={{ display: "flex" }}>
-        //         Win Ratio: {(userStats.stats.winRatio * 100).toFixed(2)}%
-        //       </div>
-        //       <div style={{ display: "flex" }}>
-        //         Max Streak: {userStats.stats.maxStreak}
-        //       </div>
-        //       <div style={{ display: "flex" }}>
-        //         Rank: {userStats.rank} / {userStats.totalPlayers}
-        //       </div>
-        //     </div>
-        //   </div>
-        // </div>
         <div
           style={{
             position: "relative",
@@ -115,78 +34,116 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             justifyContent: "center",
           }}
         >
-          <img
-            src={background} // Replace with your image path in the public directory
-            alt="Background Image"
-          />
+          <img src={background} alt="Background Image" />
           <div
             style={{
               position: "absolute",
               width: "100%",
               height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
               display: "flex",
             }}
           >
-            <h1
+            <div style={{ display: "flex" }}>
+              <h1
+                style={{
+                  color: "white",
+                  fontFamily: "Fletfex",
+                  position: "absolute",
+                  top: 320,
+                  left: 450,
+                  fontSize: "3rem",
+                  fontWeight: "900", // Maximum boldness
+                  textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
+                }}
+              >
+                #{userStats.rank}
+              </h1>
+              <h1
+                style={{
+                  color: "#FCFF55",
+                  fontFamily: "Fletfex",
+                  position: "absolute",
+                  top: 315,
+                  left: 1100,
+                  letterSpacing: "1px",
+                  fontSize: "3rem",
+                  fontWeight: "900", // Maximum boldness
+                  textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
+                }}
+              >
+                {userStats.address.substring(0, 5)}...
+                {userStats.address.substring(userStats.address.length - 4)}
+              </h1>
+            </div>
+            <div
               style={{
-                color: "white",
-                fontFamily: "Fletfex",
-                marginTop: "335px",
-                marginLeft: "450px",
-                fontSize: "46px",
-                fontWeight: "bold",
+                display: "flex",
+                width: "60%",
+                alignItems: "center",
+                margin: "0 auto",
+                justifyContent: "space-around",
+                position: "relative",
               }}
             >
-              #{userStats.rank}
-            </h1>
-            <h1
-              style={{
-                color: "white",
-                fontFamily: "Fletfex",
-                marginTop: "335px",
-                marginLeft: "400px",
-                fontSize: "46px",
-                fontWeight: "bold",
-              }}
-            >
-              {userStats.address.substring(0, 5)}...
-              {userStats.address.substring(userStats.address.length - 4)}
-            </h1>
-
-            <h1
-              style={{
-                color: "white",
-                fontFamily: "Fletfex",
-                marginTop: "690px",
-                marginLeft: "-580px",
-                fontWeight: "bold",
-              }}
-            >
-              {userStats.stats.totalGames}
-            </h1>
-            <h1
-              style={{
-                color: "white",
-                fontFamily: "Fletfex",
-                marginTop: "690px",
-                marginLeft: "360px",
-                fontWeight: "bold",
-              }}
-            >
-              {(userStats.stats.winRatio * 100).toFixed(2)}%
-            </h1>
-            <h1
-              style={{
-                color: "white",
-                fontFamily: "Fletfex",
-                marginTop: "690px",
-                marginLeft: "330px",
-                fontWeight: "bold",
-              }}
-            >
-              {userStats.stats.maxStreak}
-            </h1>
+              <h1
+                style={{
+                  color: "#FCFF55",
+                  fontFamily: "Fletfex, Arial, sans-serif",
+                  position: "relative",
+                  top: 190,
+                  left: 35,
+                  fontSize: "3rem", // Increased from 2.3rem
+                  letterSpacing: "1px",
+                  minWidth: "11%",
+                  display: "flex",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  fontWeight: "900", // Maximum boldness
+                  textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
+                }}
+              >
+                {userStats.stats.totalGames}
+              </h1>
+              <h1
+                style={{
+                  color: "#FCFF55",
+                  fontFamily: "Fletfex",
+                  fontSize: "3rem",
+                  letterSpacing: "1px",
+                  position: "relative",
+                  top: 190,
+                  left: 50,
+                  minWidth: "11%",
+                  display: "flex",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  fontWeight: "900", // Maximum boldness
+                  textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
+                }}
+              >
+                {(userStats.stats.winRatio * 100).toFixed(1)}%
+              </h1>
+              <h1
+                style={{
+                  color: "#FCFF55",
+                  fontFamily: "Fletfex",
+                  fontSize: "3rem",
+                  letterSpacing: "1px",
+                  position: "relative",
+                  top: 190,
+                  left: 55,
+                  minWidth: "11%",
+                  display: "flex",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  //   fontWeight: "bold",
+                  fontWeight: "900", // Maximum boldness
+                  textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
+                }}
+              >
+                {userStats.stats.maxStreak}
+              </h1>
+            </div>
           </div>
         </div>
       ),
