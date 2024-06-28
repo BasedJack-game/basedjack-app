@@ -123,6 +123,7 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
 
     const result = await collection.aggregate(pipeline).toArray();
     // return result[0];
+    result[0].address = address;
     console.log(result);
     const userStatsImageURL = `${
       process.env.NEXT_PUBLIC_URL
