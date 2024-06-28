@@ -106,19 +106,13 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-async function getTodayGameData() {
-  //   const requestBody = (await request.json()) as FrameRequest;
-  //   const { isValid, message } = await getFrameMessage(requestBody);
-  //   console.log(message);
-
+async function getTodayGameData(address: string) {
   try {
     await client.connect();
 
     const db = client.db("blackjack_game");
     const collection = db.collection("gamedata");
 
-    // const address = message?.raw.action.interactor.custody_address;
-    const address = "0x16b30ec3d1a87015b4be58b736ed021f3b0e3922";
     console.log("custody address", address);
 
     if (!address) {
@@ -216,7 +210,7 @@ const handleHit = async (address: string, game: any, collection: any) => {
   console.log(playerValue);
   if (playerValue > 21) {
     result = GameResult.DealerWins;
-    const today_data = await getTodayGameData();
+    const today_data = await getTodayGameData(address);
     console.log("today's data ...............", today_data);
     const todayGameData = today_data as {
       gamesWon: number;
