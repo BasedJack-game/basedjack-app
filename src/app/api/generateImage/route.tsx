@@ -2,7 +2,7 @@
 import { NextRequest } from "next/server";
 import { ImageResponse } from "@vercel/og";
 
-const suits = ["spades", "hearts", "daimonds", "clubs"];
+const suits = ["spades", "hearts", "diamonds", "clubs"];
 const values = [
   "a",
   "2",
