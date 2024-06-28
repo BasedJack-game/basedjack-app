@@ -9,7 +9,9 @@ function createImageUrl(
   dealerHand: number[],
   playerScore: number,
   dealerScore: number,
-  result: GameResult
+  result: GameResult,
+  today_game: number,
+  today_streak: number
 ): string {
   const params = {
     playerCards: playerHand,
@@ -17,6 +19,8 @@ function createImageUrl(
     playerScore,
     dealerScore,
     result,
+    today_game,
+    today_streak,
   };
 
   const jsonParams = encodeURIComponent(JSON.stringify(params));
@@ -77,6 +81,101 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
   }
 }
 
+async function getTodayGameData() {
+  //   const requestBody = (await request.json()) as FrameRequest;
+  //   const { isValid, message } = await getFrameMessage(requestBody);
+  //   console.log(message);
+
+  try {
+    await client.connect();
+
+    const db = client.db("blackjack_game");
+    const collection = db.collection("gamedata");
+
+    // const address = message?.raw.action.interactor.custody_address;
+    const address = "0x16b30ec3d1a87015b4be58b736ed021f3b0e3922";
+    console.log("custody address", address);
+
+    if (!address) {
+      return NextResponse.json(
+        { message: "address is required" },
+        { status: 400 }
+      );
+    }
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const pipeline = [
+      {
+        $match: {
+          address: address,
+          createdAt: { $gte: startOfDay },
+        },
+      },
+      {
+        $sort: { createdAt: 1 },
+      },
+      {
+        $group: {
+          _id: null,
+          gamesWon: { $sum: { $cond: [{ $eq: ["$result", 1] }, 1, 0] } },
+          results: { $push: "$result" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          gamesWon: 1,
+          maxStreak: {
+            $reduce: {
+              input: "$results",
+              initialValue: { currentStreak: 0, maxStreak: 0 },
+              in: {
+                currentStreak: {
+                  $cond: [
+                    { $eq: ["$$this", 1] },
+                    { $add: ["$$value.currentStreak", 1] },
+                    0,
+                  ],
+                },
+                maxStreak: {
+                  $max: [
+                    "$$value.maxStreak",
+                    {
+                      $cond: [
+                        { $eq: ["$$this", 1] },
+                        { $add: ["$$value.currentStreak", 1] },
+                        "$$value.maxStreak",
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          gamesWon: 1,
+          maxStreak: "$maxStreak.maxStreak",
+        },
+      },
+    ];
+    console.log("first");
+    const result = await collection.aggregate(pipeline).toArray();
+    console.log(result[0]);
+    return result[0];
+  } catch (error) {
+    console.error("Error processing game:", error);
+    return NextResponse.json(
+      { message: "Error processing game" },
+      { status: 500 }
+    );
+  }
+}
+
 const finishGame = async (game: any, gameCollection: any) => {
   let deck = shuffleDeck();
   const usedCards = [...game.playerCards, ...game.dealerCards];
@@ -120,13 +219,25 @@ const finishGame = async (game: any, gameCollection: any) => {
     { address: game.address, result: GameResult.Ongoing },
     { $set: updatedGame }
   );
+  let today_game = 0;
+  let today_streak = 0;
+  const today_data = await getTodayGameData();
+  console.log("today's data ...............", today_data);
+  const todayGameData = today_data as {
+    gamesWon: number;
+    maxStreak: number;
+  };
+  today_game = todayGameData.gamesWon;
+  today_streak = todayGameData.maxStreak;
 
   const imageUrl = createImageUrl(
     game.playerCards,
     game.dealerCards,
     playerScore,
     dealerScore,
-    result
+    result,
+    today_game,
+    today_streak
   );
 
   return new NextResponse(

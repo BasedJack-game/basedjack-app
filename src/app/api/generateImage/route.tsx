@@ -38,6 +38,7 @@ function getCardImageUrl(card: Card): string {
 function getBackImageUrl(): string {
   return `${process.env.NEXT_PUBLIC_URL}/Back.png`;
 }
+
 enum GameResult {
   Ongoing = 0,
   PlayerWins = 1,
@@ -57,15 +58,25 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const { playerCards, dealerCards, playerScore, dealerScore, result } =
-      JSON.parse(decodeURIComponent(params)) as {
-        playerCards: number[];
-        dealerCards: number[];
-        playerScore: number;
-        dealerScore: number;
-        result: GameResult;
-      };
-
+    const {
+      playerCards,
+      dealerCards,
+      playerScore,
+      dealerScore,
+      result,
+      today_game,
+      today_streak,
+    } = JSON.parse(decodeURIComponent(params)) as {
+      playerCards: number[];
+      dealerCards: number[];
+      playerScore: number;
+      dealerScore: number;
+      result: GameResult;
+      today_game: number;
+      today_streak: number;
+    };
+    console.log("today_game----------------------", today_game);
+    console.log("today_streak--------------------", today_streak);
     const playerHand: Card[] = playerCards.map(mapNumberToCard);
     const dealerHand: Card[] = dealerCards.map(mapNumberToCard);
     const imgUrl = `${process.env.NEXT_PUBLIC_URL}/playground.png`;
@@ -311,7 +322,7 @@ export async function GET(request: NextRequest) {
                         padding: "5px",
                       }}
                     >
-                      Today Game
+                      {`Today's Winnings: ${today_game.toString()}`}
                     </div>
                   </div>
                 </div>
@@ -337,13 +348,14 @@ export async function GET(request: NextRequest) {
                     <div
                       style={{
                         fontSize: "1.5rem",
-
+                        fontWeight: "500",
                         fontFamily: "Space Mono",
                         color: "white",
                         padding: "5px",
                       }}
                     >
-                      Today Streek
+                      {`Today's 
+                      Streak: ${today_streak.toString()}`}
                     </div>
                   </div>
                 </div>
