@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
 
     // get parameters from the api url
     const { searchParams } = new URL(request.url);
+    console.log(searchParams);
     const encodedParams = searchParams.get("params");
 
     if (!encodedParams) {
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
               position: "absolute",
               width: "100%",
               height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              //   backgroundColor: "rgba(0, 0, 0, 0.4)",
               display: "flex",
             }}
           >
@@ -48,8 +49,10 @@ export async function GET(request: NextRequest) {
               style={{
                 color: "white",
                 fontFamily: "Fletfex",
-                marginTop: "380px",
-                marginLeft: "180px",
+                marginTop: "390px",
+                marginLeft: "175px",
+                fontWeight: "900", // Maximum boldness
+                textShadow: "0px 0px 8px rgba(252,255,85,0.5)",
               }}
             >
               {formatPlayerAddress(paramsData[1])}
@@ -58,8 +61,10 @@ export async function GET(request: NextRequest) {
               style={{
                 color: "white",
                 fontFamily: "Arial, sans-serif",
-                marginTop: "320px",
-                marginLeft: "150px",
+                marginTop: "335px",
+                marginLeft: "140px",
+                fontWeight: "900", // Maximum boldness
+                textShadow: "0px 0px 8px rgba(252,255,85,0.5)",
               }}
             >
               {formatPlayerAddress(paramsData[0])}
@@ -68,8 +73,10 @@ export async function GET(request: NextRequest) {
               style={{
                 color: "white",
                 fontFamily: "Arial, sans-serif",
-                marginTop: "400px",
-                marginLeft: "130px",
+                marginTop: "412px",
+                marginLeft: "143px",
+                fontWeight: "900", // Maximum boldness
+                textShadow: "0px 0px 8px rgba(252,255,85,0.5)",
               }}
             >
               {formatPlayerAddress(paramsData[2])}
