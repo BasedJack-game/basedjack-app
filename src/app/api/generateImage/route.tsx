@@ -80,9 +80,7 @@ export async function GET(request: NextRequest) {
     const playerHand: Card[] = playerCards.map(mapNumberToCard);
     const dealerHand: Card[] = dealerCards.map(mapNumberToCard);
     const imgUrl = `${process.env.NEXT_PUBLIC_URL}/playground.png`;
-    const dealer = `${process.env.NEXT_PUBLIC_URL}/dealer.png`;
-    const player = `${process.env.NEXT_PUBLIC_URL}/player.png`;
-    const stats = `${process.env.NEXT_PUBLIC_URL}/stats.png`;
+    const stats = `${process.env.NEXT_PUBLIC_URL}/result.png`;
 
     const playerImages = playerHand.map((card) => getCardImageUrl(card));
     const dealerImages = dealerHand.map((card) => getCardImageUrl(card));
@@ -106,7 +104,6 @@ export async function GET(request: NextRequest) {
             alignItems: "center",
             justifyContent: "center",
             flexDirection: "column",
-            backgroundColor: "#121212",
           }}
         >
           <img
@@ -123,7 +120,8 @@ export async function GET(request: NextRequest) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              marginBottom: "40px",
+              position: "relative",
+              top: -130,
             }}
           >
             <div style={{ display: "flex", gap: 10 }}>
@@ -135,16 +133,16 @@ export async function GET(request: NextRequest) {
                       ? getBackImageUrl()
                       : getCardImageUrl(mapNumberToCard(cardNumber))
                   }
-                  width={80}
-                  height={120}
+                  width={110}
+                  height={160}
                   alt={`Dealer card ${index + 1}`}
                 />
               ))}
               {result === GameResult.Ongoing && dealerCards.length === 1 && (
                 <img
                   src={getBackImageUrl()}
-                  width={80}
-                  height={120}
+                  width={110}
+                  height={160}
                   alt="Dealer hidden card"
                 />
               )}
@@ -157,21 +155,21 @@ export async function GET(request: NextRequest) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                margin: "20px auto",
               }}
             >
-              <img src={dealer} alt="dealer" />
               <div
                 style={{
                   display: "flex",
                   position: "absolute",
                   alignItems: "center",
+                  textAlign: "center",
+                  top: 27,
                 }}
               >
                 <div
                   style={{
                     fontSize: "1.5rem",
-                    backgroundColor: "#EB00FF",
+
                     fontFamily: "Space Mono",
                     color: "white",
                     padding: "5px",
@@ -182,12 +180,17 @@ export async function GET(request: NextRequest) {
                 <div
                   style={{
                     backgroundColor: "black",
-                    fontFamily: "Space Mono",
+                    textAlign: "center",
                     color: "#FCFF55",
-                    padding: "10px 35px",
-                    fontSize: "1.2rem",
+                    padding: "3px 20px",
+                    fontSize: "1.4rem",
                     border: "none",
-                    borderRadius: "10px",
+                    display: "flex",
+                    justifyContent: "center",
+                    width: "60px",
+                    margin: "0 auto",
+                    borderRadius: "8px",
+                    letterSpacing: "1px",
                   }}
                 >
                   {dealerScore.toString()}
@@ -200,6 +203,8 @@ export async function GET(request: NextRequest) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              position: "relative",
+              top: -20,
             }}
           >
             <div style={{ display: "flex", gap: 10 }}>
@@ -207,8 +212,8 @@ export async function GET(request: NextRequest) {
                 <img
                   key={index}
                   src={src}
-                  width={80}
-                  height={120}
+                  width={110}
+                  height={160}
                   alt={`Player card ${index + 1}`}
                 />
               ))}
@@ -221,22 +226,21 @@ export async function GET(request: NextRequest) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                margin: "20px auto",
               }}
             >
-              <img src={player} alt="player" />
               <div
                 style={{
                   display: "flex",
                   position: "absolute",
                   alignItems: "center",
+                  textAlign: "center",
+                  top: 20,
                 }}
               >
                 <div
                   style={{
                     fontSize: "1.5rem",
-                    backgroundColor: "#CFFF18",
-                    fontFamily: "Space Mono",
+
                     color: "#461B66",
                     padding: "5px",
                   }}
@@ -245,13 +249,16 @@ export async function GET(request: NextRequest) {
                 </div>
                 <div
                   style={{
-                    backgroundColor: "black",
-                    fontFamily: "Space Mono",
+                    background: "black",
                     color: "#FCFF55",
-                    padding: "10px 35px",
-                    fontSize: "1.2rem",
+                    padding: "3px 20px",
+                    fontSize: "1.4rem",
                     border: "none",
-                    borderRadius: "10px",
+                    width: "60px",
+                    letterSpacing: "1px",
+                    display: "flex",
+                    justifyContent: "center",
+                    borderRadius: "8px",
                   }}
                 >
                   {playerScore.toString()}
@@ -267,7 +274,7 @@ export async function GET(request: NextRequest) {
                 left: 0,
                 width: "100%",
                 height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -297,7 +304,7 @@ export async function GET(request: NextRequest) {
                 <div
                   style={{
                     position: "relative",
-                    width: "200px",
+                    width: "300px",
                     height: "auto",
                     display: "flex",
                     alignItems: "center",
@@ -315,10 +322,10 @@ export async function GET(request: NextRequest) {
                   >
                     <div
                       style={{
-                        fontSize: "1.5rem",
-
-                        fontFamily: "Space Mono",
+                        fontSize: "1.7rem",
+                        textAlign: "left",
                         color: "white",
+                        fontWeight: 700,
                         padding: "5px",
                       }}
                     >
@@ -329,7 +336,7 @@ export async function GET(request: NextRequest) {
                 <div
                   style={{
                     position: "relative",
-                    width: "200px",
+                    width: "300px",
                     height: "auto",
                     display: "flex",
                     alignItems: "center",
@@ -347,15 +354,14 @@ export async function GET(request: NextRequest) {
                   >
                     <div
                       style={{
-                        fontSize: "1.5rem",
-                        fontWeight: "500",
-                        fontFamily: "Space Mono",
+                        fontSize: "1.7rem",
+                        fontWeight: 700,
                         color: "white",
                         padding: "5px",
                       }}
                     >
                       {`Today's 
-                      Streak: ${today_streak.toString()}`}
+                        Streak: ${today_streak.toString()}`}
                     </div>
                   </div>
                 </div>
