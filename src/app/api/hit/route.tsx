@@ -35,10 +35,10 @@ const client = new MongoClient(process.env.NEXT_PUBLIC_MONGODB_URI || "");
 async function getResponse(request: NextRequest): Promise<NextResponse> {
   console.log("hit called");
   const requestBody = (await request.json()) as FrameRequest;
-  const { isValid, message } = await getFrameMessage(requestBody);
-  console.log(message);
-
   try {
+    const { isValid, message } = await getFrameMessage(requestBody);
+    console.log(message);
+
     await client.connect(); // Ensure the client is connected
 
     const db = client.db("blackjack_game");
@@ -75,12 +75,30 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
     return await handleHit(address, unfinishedGame, collection);
   } catch (error) {
     console.error("Error processing hit action:", error);
-    return NextResponse.json(
-      { message: "Error processing hit action" },
-      { status: 500 }
+    return new NextResponse(
+      getFrameHtmlResponse({
+        buttons: [
+          {
+            label: "Start game🃏",
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
+          },
+          {
+            label: `Your stats📊`,
+            action: "post",
+            target: `${process.env.NEXT_PUBLIC_URL}/api/userStats`,
+          },
+          {
+            label: `Share Game`,
+            action: "link",
+            target: `https://warpcast.com/~/compose?text=%F0%9F%8E%89%F0%9F%94%A5+Check+out+this+Nounish+BasedJack+game%2C+a+classic+blackjack+game+on+Farcaster+Frames!+Developed+during+the+On+Chain+Summer+Hackathon+by+Base.+%23based+%23nounish+%23blackjack+%23basedJack+%F0%9F%83%8F%E2%9C%A8&embeds%5B%5D=https://blackjack-next.vercel.app/`,
+          },
+        ],
+        image: `${process.env.NEXT_PUBLIC_URL}/api/getGameData`,
+      })
     );
   } finally {
-    await client.close(); // Ensure the client is closed
+    await client.close();
   }
 }
 
