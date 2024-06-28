@@ -49,8 +49,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                   color: "white",
                   fontFamily: "Fletfex",
                   position: "absolute",
-                  top: 320,
-                  left: 450,
+                  top: 296,
+                  left: 475,
                   fontSize: "3rem",
                   fontWeight: "900", // Maximum boldness
                   textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                   fontFamily: "Fletfex, Arial, sans-serif",
                   position: "relative",
                   top: 190,
-                  left: 35,
+                  left: 25,
                   fontSize: "3rem", // Increased from 2.3rem
                   letterSpacing: "1px",
                   minWidth: "11%",
