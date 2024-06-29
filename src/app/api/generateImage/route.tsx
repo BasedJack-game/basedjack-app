@@ -50,6 +50,20 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const params = searchParams.get("params");
+
+    // fonts
+    const adrich = await fetch(
+      new URL("/public/fonts/Aldrich-Regular.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
+    const E1 = await fetch(
+      new URL("/public/fonts/E1234.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
+    const pixMid = await fetch(
+      new URL("/public/fonts/PixelifySans-Medium.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
     console.log(params);
     if (!params) {
       return new Response(JSON.stringify({ message: "Params are required" }), {
@@ -121,7 +135,7 @@ export async function GET(request: NextRequest) {
               flexDirection: "column",
               alignItems: "center",
               position: "relative",
-              top: -130,
+              top: -118,
             }}
           >
             <div style={{ display: "flex", gap: 10 }}>
@@ -163,16 +177,18 @@ export async function GET(request: NextRequest) {
                   position: "absolute",
                   alignItems: "center",
                   textAlign: "center",
-                  top: 27,
+                  top: 43,
+                  left: -4,
                 }}
               >
                 <div
                   style={{
-                    fontSize: "1.5rem",
+                    fontSize: "1.7rem",
+                    fontWeight: 700, // Bold
 
-                    fontFamily: "Space Mono",
+                    fontFamily: "Aldrich",
                     color: "white",
-                    padding: "5px",
+                    padding: "5px 10px",
                   }}
                 >
                   Dealer
@@ -182,12 +198,13 @@ export async function GET(request: NextRequest) {
                     backgroundColor: "black",
                     textAlign: "center",
                     color: "#FCFF55",
-                    padding: "3px 20px",
+                    padding: "5px 20px",
                     fontSize: "1.4rem",
                     border: "none",
+                    fontFamily: "E1",
                     display: "flex",
                     justifyContent: "center",
-                    width: "60px",
+                    minWidth: "80px",
                     margin: "0 auto",
                     borderRadius: "8px",
                     letterSpacing: "1px",
@@ -204,7 +221,7 @@ export async function GET(request: NextRequest) {
               flexDirection: "column",
               alignItems: "center",
               position: "relative",
-              top: -20,
+              top: 18,
             }}
           >
             <div style={{ display: "flex", gap: 10 }}>
@@ -234,15 +251,16 @@ export async function GET(request: NextRequest) {
                   position: "absolute",
                   alignItems: "center",
                   textAlign: "center",
-                  top: 20,
+                  top: 38,
+                  left: -4,
                 }}
               >
                 <div
                   style={{
-                    fontSize: "1.5rem",
-
+                    fontSize: "1.7rem",
+                    fontFamily: "Aldrich",
                     color: "#461B66",
-                    padding: "5px",
+                    padding: "5px 10px",
                   }}
                 >
                   Player
@@ -251,10 +269,11 @@ export async function GET(request: NextRequest) {
                   style={{
                     background: "black",
                     color: "#FCFF55",
-                    padding: "3px 20px",
+                    padding: "5px 20px",
                     fontSize: "1.4rem",
-                    border: "none",
-                    width: "60px",
+                    // border: "1px solid red",
+                    fontFamily: "E1",
+                    minWidth: "80px",
                     letterSpacing: "1px",
                     display: "flex",
                     justifyContent: "center",
@@ -283,9 +302,11 @@ export async function GET(request: NextRequest) {
             >
               <div
                 style={{
-                  fontSize: 64,
+                  fontSize: "5rem",
                   fontWeight: 700,
-                  color: resultText.includes("win") ? "red" : "#FF0000",
+                  letterSpacing: "2px",
+                  fontFamily: "pixMid",
+                  color: resultText.includes("win") ? "#FF0000" : "#F8DF2D",
                   textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
                 }}
               >
@@ -325,6 +346,7 @@ export async function GET(request: NextRequest) {
                         fontSize: "1.7rem",
                         textAlign: "left",
                         color: "white",
+                        fontFamily: "Aldrich",
                         fontWeight: 700,
                         padding: "5px",
                       }}
@@ -356,6 +378,7 @@ export async function GET(request: NextRequest) {
                       style={{
                         fontSize: "1.7rem",
                         fontWeight: 700,
+                        fontFamily: "Aldrich",
                         color: "white",
                         padding: "5px",
                       }}
@@ -371,8 +394,25 @@ export async function GET(request: NextRequest) {
         </div>
       ),
       {
-        width: 1980,
-        height: 1048,
+        width: 1200,
+        height: 630,
+        fonts: [
+          {
+            name: "Aldrich",
+            data: adrich,
+            style: "normal",
+          },
+          {
+            name: "E1",
+            data: E1,
+            style: "normal",
+          },
+          {
+            name: "pixMid",
+            data: pixMid,
+            style: "normal",
+          },
+        ],
       }
     );
 
