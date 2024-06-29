@@ -177,34 +177,21 @@ export async function GET(request: NextRequest) {
                   position: "absolute",
                   alignItems: "center",
                   textAlign: "center",
-                  top: 43,
-                  left: -4,
+                  top: 30,
+                  left: 135,
                 }}
               >
                 <div
                   style={{
-                    fontSize: "1.7rem",
-                    fontWeight: 700, // Bold
-
-                    fontFamily: "Aldrich",
-                    color: "white",
-                    padding: "5px 10px",
-                  }}
-                >
-                  Dealer
-                </div>
-                <div
-                  style={{
-                    backgroundColor: "black",
                     textAlign: "center",
                     color: "#FCFF55",
                     padding: "5px 20px",
-                    fontSize: "1.4rem",
-                    border: "none",
+                    fontSize: "1.7rem",
+                    // border: "1px solid red",
                     fontFamily: "E1",
                     display: "flex",
                     justifyContent: "center",
-                    minWidth: "80px",
+                    minWidth: "100px",
                     margin: "0 auto",
                     borderRadius: "8px",
                     letterSpacing: "1px",
@@ -221,7 +208,7 @@ export async function GET(request: NextRequest) {
               flexDirection: "column",
               alignItems: "center",
               position: "relative",
-              top: 18,
+              top: 33,
             }}
           >
             <div style={{ display: "flex", gap: 10 }}>
@@ -251,26 +238,15 @@ export async function GET(request: NextRequest) {
                   position: "absolute",
                   alignItems: "center",
                   textAlign: "center",
-                  top: 38,
-                  left: -4,
+                  top: 35,
+                  left: 135,
                 }}
               >
                 <div
                   style={{
-                    fontSize: "1.7rem",
-                    fontFamily: "Aldrich",
-                    color: "#461B66",
-                    padding: "5px 10px",
-                  }}
-                >
-                  Player
-                </div>
-                <div
-                  style={{
-                    background: "black",
                     color: "#FCFF55",
                     padding: "5px 20px",
-                    fontSize: "1.4rem",
+                    fontSize: "1.7rem",
                     // border: "1px solid red",
                     fontFamily: "E1",
                     minWidth: "80px",
