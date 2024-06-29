@@ -59,7 +59,7 @@ So there you have it – BasedJack isn't just a game, it's a whole vibe. Ready t
 ## Technologies Used
 
 - **Next.js**: Utilized for building the frontend of the application, ensuring a smooth and responsive user interface.
-- **MongoDB**: Employed as the database to store game data, leaderboard statistics, and player information. Its scalability and flexibility were crucial in managing the dynamic data requirements of the game.
+- **MongoDB**: Employed as the database to store game data, leaderboard statistics, and player information. Its scalability and flexibility were crucial in managing the dynamic data requirements of the game🗄️.
 - **Onchain Kit**: Used to obtain frames data for seamless integration and interaction within Farcaster's environment. [Learn more about Onchain Kit](https://onchainkit.xyz/).
 
 ## Getting Started
