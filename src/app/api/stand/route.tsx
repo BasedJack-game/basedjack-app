@@ -256,7 +256,7 @@ const finishGame = async (address: string, game: any, gameCollection: any) => {
     getFrameHtmlResponse({
       buttons: [
         {
-          label: `Play Again🔁`,
+          label: `Play🔁`,
           action: "post",
           target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
         },

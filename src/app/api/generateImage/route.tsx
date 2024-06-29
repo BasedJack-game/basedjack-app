@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     if (result === GameResult.PlayerWins) {
       resultText = "You win!";
     } else if (result === GameResult.DealerWins) {
-      resultText = "You Busted, Dealer Wins!";
+      resultText = "Dealer Wins!";
     } else if (result === GameResult.Tie) {
       resultText = "It's a tie!";
     }
@@ -187,7 +187,6 @@ export async function GET(request: NextRequest) {
                     color: "#FCFF55",
                     padding: "5px 20px",
                     fontSize: "1.7rem",
-                    // border: "1px solid red",
                     fontFamily: "E1",
                     display: "flex",
                     justifyContent: "center",
