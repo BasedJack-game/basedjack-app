@@ -7,6 +7,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const baseUrl = process.env.NEXT_PUBLIC_URL;
     const background = `${baseUrl}/stats_bg.png`;
 
+    const E1 = await fetch(
+      new URL("/public/fonts/E1234.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
+    const pixMid = await fetch(
+      new URL("/public/fonts/PixelifySans-Medium.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
     const { searchParams } = new URL(request.url);
     const encodedStats = searchParams.get("stats");
 
@@ -61,12 +69,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               <h1
                 style={{
                   color: "#FCFF55",
-                  fontFamily: "Fletfex",
+                  fontFamily: "pixMid",
                   position: "absolute",
                   top: 315,
                   left: 850,
-                  letterSpacing: "1px",
-                  fontSize: "3rem",
+                  letterSpacing: "2px",
+                  fontSize: "3.5rem",
                   fontWeight: "900", // Maximum boldness
                   textShadow: "0px 0px 8px rgba(252,255,85,0.5)", // Glow effect
                 }}
@@ -88,9 +96,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               <h1
                 style={{
                   color: "#FCFF55",
-                  fontFamily: "Fletfex, Arial, sans-serif",
+                  fontFamily: "E1",
                   position: "relative",
-                  top: 190,
+                  top: 185,
                   left: 25,
                   fontSize: "3rem", // Increased from 2.3rem
                   letterSpacing: "1px",
@@ -107,11 +115,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               <h1
                 style={{
                   color: "#FCFF55",
-                  fontFamily: "Fletfex",
+                  fontFamily: "E1",
                   fontSize: "3rem",
-                  letterSpacing: "1px",
                   position: "relative",
-                  top: 190,
+                  top: 185,
                   left: 50,
                   minWidth: "11%",
                   display: "flex",
@@ -126,11 +133,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               <h1
                 style={{
                   color: "#FCFF55",
-                  fontFamily: "Fletfex",
+                  fontFamily: "E1",
                   fontSize: "3rem",
                   letterSpacing: "1px",
                   position: "relative",
-                  top: 190,
+                  top: 185,
                   left: 55,
                   minWidth: "11%",
                   display: "flex",
@@ -150,6 +157,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {
         width: width,
         height: height,
+        fonts: [
+          {
+            name: "E1",
+            data: E1,
+            style: "normal",
+          },
+          {
+            name: "pixMid",
+            data: pixMid,
+            style: "normal",
+          },
+        ],
       }
     );
 
