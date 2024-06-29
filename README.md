@@ -1,40 +1,54 @@
 # **BasedJack**: The Nounish Way to Play Blackjack on Farcaster!
 
-"**BasedJack**: The Ultimate Nounish Blackjack Experience on Farcaster!"
-
 ## Introduction
 
-**BasedJack** is a classic blackjack game with a unique nounish twist, inspired by the vibrant and quirky aesthetics of the Nouns DAO NFT project. Playable directly within the Farcaster and Warpcast apps, **BasedJack** offers an immersive and engaging gaming experience that combines the thrill of blackjack with the charm of nounish characters.
-What sets **BasedJack** apart is its robust competitive elements, designed to keep players coming back for more:
+Hey there, Farcaster fam! 👋 Ready to spice up your feed with some nounish fun? Say hello to **BasedJack** - the blackjack game that's about to blow your pixelated socks off! 🧦💥
 
-**Win Streaks**: Track your consecutive wins and challenge yourself to beat your personal best or compete with other players for the longest streak.
-Comprehensive Leaderboard: A dynamic leaderboard showcases top players based on various metrics:
+Picture this: classic blackjack, but make it Nouns. 🃏👓 We've taken the timeless card game and given it a quirky makeover inspired by those lovable Nouns DAO NFTs. The result? A game so addictive, you might forget to cast! 😅
 
-- Highest win percentage
-- Longest win streaks
-- Total games played
-- Overall rank
+But wait, there's more! We're not just talking about a simple game of 21 here. BasedJack is bringing the heat with some seriously cool features:
 
-**Win Percentage Tracking**: Monitor your success rate over time, allowing you to gauge your improvement and compare your performance against other players.
-Top 3 Players Showcase: Get recognized for your skills by making it to the top 3 players list, visible to all **BasedJack** enthusiasts.
-Total Games Played: See how your dedication stacks up against other players by tracking the total number of games you've played.
+**🔥 Win Streaks**: How long can you stay hot? Challenge yourself or your buddies to epic winning runs!
 
-The game's seamless integration with Farcaster and Warpcast means you can enjoy **BasedJack** without leaving your favorite social platforms. Whether you're looking to kill time between casts or engage in friendly competition with fellow Farcaster users, **BasedJack** provides an entertaining and accessible gaming experience.
-With its **nounish theme**, **BasedJack** not only offers a fun pastime but also serves as a gateway to the wider Nouns ecosystem, potentially sparking interest in **Nouns NFTs** and related projects.
+**🏆 Leaderboard Madness**: We're tracking it all - win percentages, streaks, games played, and more. Time to claim your crown as the BasedJack boss!
 
-Future plans include the exciting prospect of minting achievements on the Base blockchain, adding an extra layer of incentive and recognition for dedicated players while contributing to the growth of the Base ecosystem.
-Get ready to test your luck, strategy, and competitive spirit with **BasedJack** - the ultimate nounish blackjack experience on Farcaster!
+**📊 Stats Galore**: Keep tabs on your win rate and watch as you transform from rookie to pro.
 
-## The Problem It Solves
+**🥇🥈🥉 Top 3 Showdown**: Reach the pinnacle and see your name in lights (well, pixels) as one of the top 3 players!
 
-1. **Lack of Engaging Games on Farcaster**: Users of Farcaster and Warpcast lacked access to engaging and fun games that could be played directly within the apps.
-2. **Desire for Themed Gaming Experiences**: There was a demand for games with unique and vibrant themes. **BasedJack** meets this demand by incorporating the nounish theme of the Nouns DAO NFT project.
-3. **Need for Competitive Elements**: Players wanted more than just gameplay; they sought competitive elements to enhance their experience. **BasedJack** solves this by providing a comprehensive leaderboard tracking win streaks, win percentage, rank, top 3 players, and total games played.
-4. **In-App Gaming**: Users can enjoy **BasedJack** without needing to leave the Farcaster or Warpcast platforms, enhancing user convenience and engagement.
-5. **Minting of Achievements on Base**: Planned integration for minting achievements on **Base** blockchain will incentivize users and contribute to the growth and adoption of the **base** blockchain.
-6. **Promoting Nouns DAO**: By using and promoting the nounish theme, **BasedJack** helps increase the visibility and growth of Nouns NFTs and the overall Nouns ecosystem.
-7. **Multiplayer Support and Socializing**: BasedJack plans to add multiplayer support and socializing features on Farcaster, allowing users to play with friends and interact within the game, fostering a sense of community and enhancing the overall gaming experience.
-8. **Player Challenges**: BasedJack will enable players to challenge other users and play against them, adding a new dimension of competition and interaction to the game.
+**🎰 Game Count**: For when you want to humble brag about how many hands you've crushed.
+
+The best part? You can get your BasedJack fix right inside Farcaster and Warpcast. No app-hopping required! 📱✨
+
+And for all you Nouns enthusiasts out there, playing BasedJack is like a mini-celebration of the whole Nouns vibe. Who knows? You might just find yourself falling down the Nouns NFT rabbit hole! 🕳️🐰
+
+But hold onto your glasses, folks, because we're just getting started! 👀 We're cooking up plans to mint achievements on Base blockchain. Imagine flexing your BasedJack skills with some sweet, sweet NFTs. The future's looking bright (and square🕶️)! 🌟
+
+So, what are you waiting for? It's time to hit, stand, and double down your way to BasedJack glory! Ready to play? Let's go! 🚀♠️♥️♣️♦️
+
+# What's the Big Deal with BasedJack?
+
+Ever scrolled through Farcaster or Warpcast and thought, "Man, I could really go for a game right now"? Well, you're not alone. That's where BasedJack swoops in to save the day!
+
+1. **Boredom Buster**: No more mindless scrolling! BasedJack brings the casino to your feed, keeping you entertained without ever leaving the app.
+
+2. **Nouns-tastic**: We've taken the quirky, pixelated charm of Nouns and dealt it into a blackjack game. It's like playing cards with your favorite NFT buddies!
+
+3. **Flex Those Wins**: Got skills? Show 'em off! Our leaderboard tracks everything from win streaks to your total domination count. Time to become the BasedJack legend you were born to be.
+
+4. **Stay in Your Lane**: Why hop between apps when you can hit, stand, and double down right in Farcaster or Warpcast? It's all about that seamless gaming life.
+
+5. **Achievement Unlocked (Soon™)**: We're cooking up some sweet NFT achievements on Base. Soon you'll be able to mint your brags and flex on the blockchain. so keep an eye on us 👀!
+
+6. **Nouns to the Moon**: By rocking the Nouns style, we're giving a little boost to the whole Nouns ecosystem. It's a win-win!
+
+7. **Squad Up**: Multiplayer mode is on the horizon🤌. Soon you'll be able to school your friends or make new ones over a hand of BasedJack.
+
+8. **Throw Down the Gauntlet**: Feel like a high-stakes showdown? Player challenges are coming, letting you call out your rivals for epic BasedJack battles.
+
+9. **Keep Your Eyes Peeled**: Why? Because we're not just stopping at solo play. Multiplayer frames are coming soon, bringing a whole new level of social gaming to Farcaster. Get ready to see BasedJack take over your feed in a whole new way!
+
+So there you have it – BasedJack isn't just a game, it's a whole vibe. Ready to get dealt in and be part of the next big thing in social gaming?
 
 ## Challenges We Ran Into
 
@@ -53,19 +67,18 @@ Get ready to test your luck, strategy, and competitive spirit with **BasedJack**
 To start playing **BasedJack**, copy the following URL and post it on Farcaster and Cast it:
 
 ```
-https://blackjack-next.vercel.app/
+https://basedjack-next.vercel.app/
 ```
 
 ### OR
 
-[Click here to start playing](https://blackjack-next.vercel.app/)
+[Click here to start playing](https://basedjack-next.vercel.app/)
 
 ## Sponsors
 
-**BasedJack** is proudly supported by:
-
-- **Base**
-- **Nouns DAO**
+- **Searching 👀**
+- **Nouns DAO (sponsor us) 🤓**
+- **Farcaster(Hopeful🤞)**
 
 Submitted for the Base Onchain Summer Hackathon.
 
