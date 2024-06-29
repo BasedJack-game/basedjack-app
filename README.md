@@ -33,6 +33,8 @@ Get ready to test your luck, strategy, and competitive spirit with **BasedJack**
 4. **In-App Gaming**: Users can enjoy **BasedJack** without needing to leave the Farcaster or Warpcast platforms, enhancing user convenience and engagement.
 5. **Minting of Achievements on Base**: Planned integration for minting achievements on **Base** blockchain will incentivize users and contribute to the growth and adoption of the **base** blockchain.
 6. **Promoting Nouns DAO**: By using and promoting the nounish theme, **BasedJack** helps increase the visibility and growth of Nouns NFTs and the overall Nouns ecosystem.
+7. **Multiplayer Support and Socializing**: BasedJack plans to add multiplayer support and socializing features on Farcaster, allowing users to play with friends and interact within the game, fostering a sense of community and enhancing the overall gaming experience.
+8. **Player Challenges**: BasedJack will enable players to challenge other users and play against them, adding a new dimension of competition and interaction to the game.
 
 ## Challenges We Ran Into
 
