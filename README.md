@@ -46,7 +46,7 @@ Ever scrolled through Farcaster or Warpcast and thought, "Man, I could really go
 
 8. **Throw Down the Gauntlet**: Feel like a high-stakes showdown? Player challenges are coming, letting you call out your rivals for epic BasedJack battles.
 
-9. **Keep Your Eyes Peeled**: Why? Because we're not just stopping at solo play. Multiplayer frames are coming soon, bringing a whole new level of social gaming to Farcaster. Get ready to see BasedJack take over your feed in a whole new way!
+9. **Keep Your Eyes on👀**: Why? Because we're not just stopping at solo play. Multiplayer frames are coming soon, bringing a whole new level of social gaming to Farcaster. Get ready to see BasedJack take over your feed in a whole new way!
 
 So there you have it – BasedJack isn't just a game, it's a whole vibe. Ready to get dealt in and be part of the next big thing in social gaming?
 
