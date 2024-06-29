@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { NextRequest } from "next/server";
 import { ImageResponse } from "@vercel/og";
 
@@ -103,7 +102,7 @@ export async function GET(request: NextRequest) {
     if (result === GameResult.PlayerWins) {
       resultText = "You win!";
     } else if (result === GameResult.DealerWins) {
-      resultText = "Dealer wins!";
+      resultText = "You Busted, Dealer Wins!";
     } else if (result === GameResult.Tie) {
       resultText = "It's a tie!";
     }
@@ -306,7 +305,8 @@ export async function GET(request: NextRequest) {
                   fontWeight: 700,
                   letterSpacing: "2px",
                   fontFamily: "pixMid",
-                  color: resultText.includes("win") ? "#FF0000" : "#F8DF2D",
+                  color:
+                    result === GameResult.PlayerWins ? "#F8DF2D" : "#FF0000",
                   textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
                 }}
               >

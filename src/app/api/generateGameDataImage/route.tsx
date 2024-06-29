@@ -7,6 +7,10 @@ export async function GET(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_URL;
     const background = `${baseUrl}/front_background.png`;
 
+    const pixSans = await fetch(
+      new URL("/public/fonts/PixelifySans-Regular.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
     // get parameters from the api url
     const { searchParams } = new URL(request.url);
     console.log(searchParams);
@@ -45,10 +49,11 @@ export async function GET(request: NextRequest) {
               display: "flex",
             }}
           >
-            <h1
+            <div
               style={{
-                color: "white",
-                fontFamily: "Fletfex",
+                color: "#CFFF18",
+                fontSize: "2rem",
+                fontFamily: "pixSans",
                 marginTop: "390px",
                 marginLeft: "175px",
                 fontWeight: "900", // Maximum boldness
@@ -56,11 +61,12 @@ export async function GET(request: NextRequest) {
               }}
             >
               {formatPlayerAddress(paramsData[1])}
-            </h1>
-            <h1
+            </div>
+            <div
               style={{
-                color: "white",
-                fontFamily: "Arial, sans-serif",
+                color: "#CFFF18",
+                fontSize: "2rem",
+                fontFamily: "pixSans",
                 marginTop: "335px",
                 marginLeft: "140px",
                 fontWeight: "900", // Maximum boldness
@@ -68,11 +74,12 @@ export async function GET(request: NextRequest) {
               }}
             >
               {formatPlayerAddress(paramsData[0])}
-            </h1>
-            <h1
+            </div>
+            <div
               style={{
-                color: "white",
-                fontFamily: "Arial, sans-serif",
+                color: "#CFFF18",
+                fontFamily: "pixSans",
+                fontSize: "2rem",
                 marginTop: "412px",
                 marginLeft: "143px",
                 fontWeight: "900", // Maximum boldness
@@ -80,13 +87,20 @@ export async function GET(request: NextRequest) {
               }}
             >
               {formatPlayerAddress(paramsData[2])}
-            </h1>
+            </div>
           </div>
         </div>
       ),
       {
         width: 1200,
         height: 630,
+        fonts: [
+          {
+            name: "pixSans",
+            data: pixSans,
+            style: "normal",
+          },
+        ],
       }
     );
 
