@@ -137,15 +137,10 @@ async function getResponse(request: NextRequest): Promise<NextResponse> {
       getFrameHtmlResponse({
         buttons: [
           {
-            label: "Start game🃏",
+            label: "Play ▶️",
             action: "post",
             target: `${process.env.NEXT_PUBLIC_URL}/api/startGame`,
           },
-          //   {
-          //     label: `Stand`,
-          //     action: "post",
-          //     target: `${process.env.NEXT_PUBLIC_URL}/api/stand`,
-          //   },
         ],
         image: userStatsImageURL,
       })

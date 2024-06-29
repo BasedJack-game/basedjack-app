@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { NextRequest } from "next/server";
 import { ImageResponse } from "@vercel/og";
 

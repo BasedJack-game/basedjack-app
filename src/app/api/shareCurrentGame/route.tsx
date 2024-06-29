@@ -23,7 +23,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     getFrameHtmlResponse({
       buttons: [
         {
-          label: "Start game",
+          label: "Play ▶️",
           action: "post",
           target: `${process.env.NEXT_PUBLIC_URL}/api/startGame}`,
         },
