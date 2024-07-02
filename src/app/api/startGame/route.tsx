@@ -21,11 +21,11 @@ function createImageUrl(
   result: GameResult
 ): string {
   const params = {
-    playerCards: playerHand,
-    dealerCards: dealerHand,
-    playerScore,
-    dealerScore,
-    result,
+    p: playerHand, // player hand
+    d: dealerHand, // dealer hand
+    ps: playerScore, // player score
+    ds: dealerScore, // dealer score
+    r: result, // game result
   };
 
   const jsonParams = JSON.stringify(params);

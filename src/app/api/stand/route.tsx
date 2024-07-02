@@ -14,13 +14,13 @@ function createImageUrl(
   today_streak: number
 ): string {
   const params = {
-    playerCards: playerHand,
-    dealerCards: dealerHand,
-    playerScore,
-    dealerScore,
-    result,
-    today_game,
-    today_streak,
+    p: playerHand, // playerCards
+    d: dealerHand, // dealerCards
+    ps: playerScore, // playerScore
+    ds: dealerScore, // dealerScore
+    r: result, // result
+    tg: today_game, // today_game
+    ts: today_streak, // today_streak
   };
 
   const jsonParams = JSON.stringify(params);

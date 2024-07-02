@@ -15,13 +15,13 @@ function createImageUrl(
   today_streak: number
 ): string {
   const params = {
-    playerCards: playerHand,
-    dealerCards: [visibleDealerCard], // Only pass the visible dealer card
-    playerScore,
-    dealerScore,
-    result,
-    today_game,
-    today_streak,
+    p: playerHand, // playerCards
+    d: [visibleDealerCard], // dealerCards (only the visible card)
+    ps: playerScore, // playerScore
+    ds: dealerScore, // dealerScore
+    r: result, // result
+    tg: today_game, // today_game
+    ts: today_streak, // today_streak
   };
 
   const jsonParams = JSON.stringify(params);
@@ -29,6 +29,7 @@ function createImageUrl(
 
   return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${base64Params}`;
 }
+
 enum GameResult {
   Ongoing = 0,
   PlayerWins = 1,

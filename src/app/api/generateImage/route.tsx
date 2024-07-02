@@ -72,21 +72,21 @@ export async function GET(request: NextRequest) {
     ).then((res) => res.arrayBuffer());
 
     const {
-      playerCards,
-      dealerCards,
-      playerScore,
-      dealerScore,
-      result,
-      today_game,
-      today_streak,
+      p: playerCards,
+      d: dealerCards,
+      ps: playerScore,
+      ds: dealerScore,
+      r: result,
+      tg: today_game,
+      ts: today_streak,
     } = params as {
-      playerCards: number[];
-      dealerCards: number[];
-      playerScore: number;
-      dealerScore: number;
-      result: GameResult;
-      today_game: number;
-      today_streak: number;
+      p: number[];
+      d: number[];
+      ps: number;
+      ds: number;
+      r: GameResult;
+      tg: number;
+      ts: number;
     };
 
     const playerHand: Card[] = playerCards.map(mapNumberToCard);
