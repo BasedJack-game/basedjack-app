@@ -28,6 +28,7 @@ function mapNumberToCard(num: number): Card {
   if (num < 1 || num > 52) throw new Error("Invalid card number");
   const suitIndex = Math.floor((num - 1) / 13);
   const valueIndex = (num - 1) % 13;
+  console.log("cards", { value: values[valueIndex], suit: suits[suitIndex] });
   return { value: values[valueIndex], suit: suits[suitIndex] };
 }
 
@@ -48,17 +49,9 @@ enum GameResult {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const base64Params = searchParams.get("params");
-    let params: any;
+    const params = searchParams.get("params");
 
-    if (base64Params) {
-      const jsonParams = Buffer.from(base64Params, "base64").toString("utf-8");
-      params = JSON.parse(jsonParams);
-    } else {
-      throw new Error("Params not found in the URL");
-    }
-
-    // Fonts
+    // fonts
     const adrich = await fetch(
       new URL("/public/fonts/Aldrich-Regular.ttf", import.meta.url)
     ).then((res) => res.arrayBuffer());
@@ -71,6 +64,14 @@ export async function GET(request: NextRequest) {
       new URL("/public/fonts/PixelifySans-Medium.ttf", import.meta.url)
     ).then((res) => res.arrayBuffer());
 
+    console.log(params);
+    if (!params) {
+      return new Response(JSON.stringify({ message: "Params are required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const {
       playerCards,
       dealerCards,
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
       result,
       today_game,
       today_streak,
-    } = params as {
+    } = JSON.parse(decodeURIComponent(params)) as {
       playerCards: number[];
       dealerCards: number[];
       playerScore: number;
@@ -88,7 +89,8 @@ export async function GET(request: NextRequest) {
       today_game: number;
       today_streak: number;
     };
-
+    console.log("today_game----------------------", today_game);
+    console.log("today_streak--------------------", today_streak);
     const playerHand: Card[] = playerCards.map(mapNumberToCard);
     const dealerHand: Card[] = dealerCards.map(mapNumberToCard);
     const imgUrl = `${process.env.NEXT_PUBLIC_URL}/playground.png`;
@@ -105,7 +107,7 @@ export async function GET(request: NextRequest) {
     } else if (result === GameResult.Tie) {
       resultText = "It's a tie!";
     }
-
+    console.log("dealerImages", dealerImages);
     const imageResponse = new ImageResponse(
       (
         <div
@@ -244,6 +246,7 @@ export async function GET(request: NextRequest) {
                     color: "#FCFF55",
                     padding: "5px 20px",
                     fontSize: "1.7rem",
+                    // border: "1px solid red",
                     fontFamily: "E1",
                     minWidth: "80px",
                     letterSpacing: "1px",
@@ -356,7 +359,8 @@ export async function GET(request: NextRequest) {
                         padding: "5px",
                       }}
                     >
-                      {`Today's Streak: ${today_streak.toString()}`}
+                      {`Today's 
+                        Streak: ${today_streak.toString()}`}
                     </div>
                   </div>
                 </div>

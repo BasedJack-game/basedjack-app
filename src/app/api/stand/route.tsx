@@ -23,8 +23,10 @@ function createImageUrl(
     today_streak,
   };
 
-  const jsonParams = encodeURIComponent(JSON.stringify(params));
-  return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${jsonParams}`;
+  const jsonParams = JSON.stringify(params);
+  const base64Params = Buffer.from(jsonParams).toString("base64");
+
+  return `${process.env.NEXT_PUBLIC_URL}/api/generateImage/?params=${base64Params}`;
 }
 
 enum GameResult {
